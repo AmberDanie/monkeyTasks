@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">toDoList</string>
+    <string name="main_title">Мои дела</string>
+    <string name="tasks_done">Выполнено — %1$s</string>
+</resources>
