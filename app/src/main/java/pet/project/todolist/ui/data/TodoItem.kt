@@ -3,8 +3,8 @@ package pet.project.todolist.ui.data
 import java.time.LocalDate
 import java.util.Date
 
-enum class TaskImportance {
-    LOW, DEFAULT, HIGH
+enum class TaskImportance(val importanceString: String) {
+    LOW("Низкий"), DEFAULT("Нет"), HIGH("Высокий")
 }
 
 data class TodoItem(

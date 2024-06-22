@@ -3,4 +3,15 @@
     <style name="AppTheme" parent="Theme.ToDoList">
         <!-- Customize your theme here. -->
     </style>
+
+    <style name="DatePickerLightTheme" parent="android:Theme.Material.Light.Dialog">
+        <item name="android:colorSecondary">@color/white</item>
+        <item name="android:colorAccent">@color/blue</item>
+    </style>
+
+    <style name="DatePickerDarkTheme" parent="android:Theme.Material.Dialog">
+        <item name="android:colorSecondary">@color/white</item>
+        <item name="android:colorAccent">@color/blue</item>
+        <item name="android:colorPrimary">@color/blue</item>
+    </style>
 </resources>
