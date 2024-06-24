@@ -3,13 +3,20 @@ package pet.project.todolist
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import pet.project.todolist.ui.MainScreen
 import pet.project.todolist.ui.MainScreenViewModel
+import pet.project.todolist.ui.NavGraph
+import pet.project.todolist.ui.TaskScreen
 import pet.project.todolist.ui.theme.CustomTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,12 +27,25 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             CustomTheme {
-                // A surface container using the 'background' color from the theme
+                val navController = rememberNavController()
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = CustomTheme.colors.backPrimary
                 ) {
-                    MainScreen(mainScreenViewModel)
+                    NavHost(
+                        navController = navController,
+                        startDestination = NavGraph.Main.name,
+                        enterTransition = { fadeIn() },
+                        exitTransition = { fadeOut() },
+                        popEnterTransition = { fadeIn() },
+                        popExitTransition = { fadeOut() }) {
+                        composable(route = NavGraph.Main.name) {
+                            MainScreen(mainScreenViewModel, navController)
+                        }
+                        composable(route = NavGraph.Task.name) {
+                            TaskScreen(mainScreenViewModel, navController)
+                        }
+                    }
                 }
             }
         }
@@ -40,7 +60,7 @@ fun AppDarkPreview() {
             modifier = Modifier.fillMaxSize(),
             color = CustomTheme.colors.backPrimary
         ) {
-            MainScreen(MainScreenViewModel())
+            MainScreen(MainScreenViewModel(), rememberNavController())
         }
     }
 }
@@ -53,7 +73,7 @@ fun AppLightPreview() {
             modifier = Modifier.fillMaxSize(),
             color = CustomTheme.colors.backPrimary
         ) {
-            MainScreen(MainScreenViewModel())
+            MainScreen(MainScreenViewModel(), rememberNavController())
         }
     }
 }

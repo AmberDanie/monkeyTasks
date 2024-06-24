@@ -20,7 +20,7 @@ data class CustomTypography(
     ),
     val button: TextStyle = TextStyle(
         fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Normal,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 14.sp,
         lineHeight = 24.sp
     ),

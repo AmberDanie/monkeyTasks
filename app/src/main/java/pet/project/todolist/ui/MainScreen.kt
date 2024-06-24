@@ -1,6 +1,14 @@
 package pet.project.todolist.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,23 +17,30 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import pet.project.todolist.R
 import pet.project.todolist.ui.data.TaskImportance
 import pet.project.todolist.ui.data.TodoItem
@@ -34,53 +49,126 @@ import pet.project.todolist.ui.theme.CustomTheme
 @Composable
 fun MainScreen(
     mainScreenViewModel: MainScreenViewModel,
+    navController: NavController,
     modifier: Modifier = Modifier) {
-    MainScreenTitle(mainScreenViewModel)
+    val msState by mainScreenViewModel.msState.collectAsState()
+    val items = msState.itemsList
+    val showCompleted = msState.showCompleted
+    Box {
+        MainScreenTitle(
+            toDoItems = items,
+            showOrHideTasks = {
+                mainScreenViewModel.showOrHideCompletedTasks()
+            },
+            onCheckedChange = {
+                mainScreenViewModel.checkboxClick(it)
+            },
+            onInfoClick = { it ->
+                mainScreenViewModel.updateCurrentItem(it)
+                navController.navigate(NavGraph.Task.name)
+            },
+            showCompleted = showCompleted
+        )
+        FloatingActionButton(
+            onClick = {
+//                mainScreenViewModel.addTodoItem(
+//                    TodoItem(
+//                        id = (items.last().id.toInt() + 1).toString(),
+//                        text = "Купить что-то, где-то, зачем-то, но зачем не очень понятно",
+//                        isMade = false,
+//                        creationDate = Date()
+//                    )
+//                )
+                navController.navigate(NavGraph.Task.name)
+            },
+            modifier = Modifier
+                .padding(end = 16.dp, bottom = 24.dp)
+                .align(Alignment.BottomEnd),
+            shape = CircleShape,
+            containerColor = CustomTheme.colors.blue,
+            contentColor = CustomTheme.colors.white
+        ) {
+           Icon(Icons.Filled.Add, "Action button")
+        }
+    }
 }
 
 @Composable
 fun MainScreenTitle(
-    mainScreenViewModel: MainScreenViewModel,
+    toDoItems: List<TodoItem>,
+    showOrHideTasks: () -> Unit,
+    onCheckedChange: (TodoItem) -> Unit,
+    onInfoClick: (TodoItem) -> Unit,
+    showCompleted: Boolean,
     modifier: Modifier = Modifier) {
-    val toDoItems = mainScreenViewModel.getTodoItems()
-    var tasksDone = remember { mutableIntStateOf(toDoItems.size) }
+    val tasksDone = toDoItems.count { it.isMade }
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text(text = stringResource(id = R.string.main_title),
+        Text(
+            text = stringResource(id = R.string.main_title),
             style = CustomTheme.typography.largeTitle,
             color = CustomTheme.colors.labelPrimary,
-            modifier = Modifier.padding(start = 60.dp, top = 82.dp))
+            modifier = Modifier.padding(start = 60.dp, top = 82.dp)
+        )
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 60.dp, end = 20.dp)
+                .padding(start = 60.dp, end = 8.dp)
         ) {
-            Text(text = stringResource(R.string.tasks_done,
-                tasksDone.intValue),
+            Text(
+                text = stringResource(
+                    R.string.tasks_done,
+                    tasksDone, toDoItems.size
+                ),
                 style = CustomTheme.typography.body,
-                color = CustomTheme.colors.labelSecondary)
-            IconButton(onClick = { /*TODO*/ }) {
+                color = CustomTheme.colors.labelSecondary
+            )
+            IconButton(onClick = {
+                showOrHideTasks()
+            }) {
                 Icon(
-                    painter = painterResource(R.drawable.baseline_visibility_24),
+                    painter = if (!showCompleted) painterResource(R.drawable.baseline_visibility_24)
+                    else painterResource(R.drawable.baseline_visibility_off_24),
                     contentDescription = "Visibility on",
                     tint = CustomTheme.colors.blue
                 )
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
-        ElevatedCard(colors = CardDefaults.elevatedCardColors(
-            containerColor = CustomTheme.colors.backSecondary,
-            contentColor = CustomTheme.colors.labelSecondary
-        ),
-            modifier = Modifier.padding(horizontal = 8.dp)) {
-            LazyColumn {
-                items(toDoItems) {
-                    ListItem(item = it)
+        ElevatedCard(
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = CustomTheme.colors.backSecondary,
+                contentColor = CustomTheme.colors.labelSecondary
+            ),
+            elevation = CardDefaults.elevatedCardElevation(
+                2.dp
+            ),
+            modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 16.dp)
+        ) {
+            LazyColumn(
+                modifier = Modifier.animateContentSize(
+                    animationSpec = spring(
+                        stiffness = Spring.StiffnessHigh
+                    )
+                )
+            ) {
+                items(items = toDoItems, key = {it.id}) {
+                    AnimatedVisibility(
+                        visible = showCompleted || !it.isMade,
+                        enter = expandVertically(animationSpec = tween(200)),
+                        exit = shrinkVertically(animationSpec = tween(200))
+                    ) {
+                        ListItem(item = it,
+                            onCheckedChange = onCheckedChange,
+                            onInfoClick = onInfoClick)
+                    }
                 }
-                item(1) {}
+                item(1) {
+                    Spacer(Modifier.height(64.dp))
+                }
             }
         }
     }
@@ -89,49 +177,72 @@ fun MainScreenTitle(
 @Composable
 fun ListItem(
     item: TodoItem,
+    onCheckedChange: (TodoItem) -> Unit,
+    onInfoClick: (TodoItem) -> Unit,
     modifier: Modifier = Modifier) {
-    Row {
+    Row(
+    ) {
         Checkbox(checked = item.isMade,
             onCheckedChange = {
-                item.isMade != item.isMade
+                onCheckedChange(item)
             },
             colors = CheckboxDefaults.colors(
                 checkedColor = CustomTheme.colors.green,
-                checkmarkColor = CustomTheme.colors.backSecondary
-            ))
+                checkmarkColor = CustomTheme.colors.backSecondary,
+                uncheckedColor = when (item.importance) {
+                    TaskImportance.HIGH -> CustomTheme.colors.red
+                    else -> CustomTheme.colors.gray
+                }
+            ),
+            modifier = modifier
+        )
         when (item.importance) {
             TaskImportance.LOW ->
                 Icon(painter = painterResource(id = R.drawable.baseline_arrow_downward_24),
                     contentDescription = null,
-                    tint = CustomTheme.colors.gray,
-                    modifier = Modifier.padding(top = 12.dp))
+                    tint = if (!item.isMade) CustomTheme.colors.gray else CustomTheme.colors.green,
+                    modifier = modifier.padding(top = 12.dp))
             TaskImportance.HIGH ->
                 Icon(painter = painterResource(id = R.drawable.baseline_priority_high_24),
                     contentDescription = null,
-                    tint = CustomTheme.colors.red,
-                    modifier = Modifier.padding(top = 12.dp))
+                    tint = if (!item.isMade) CustomTheme.colors.red else CustomTheme.colors.green,
+                    modifier = modifier.padding(top = 12.dp))
             else -> {}
         }
-        Column {
+        Column(
+            modifier = Modifier.weight(0.66f)
+        ) {
             Text(
                 item.text,
                 style = CustomTheme.typography.body,
                 textDecoration = if (item.isMade) TextDecoration.LineThrough
-                else TextDecoration.None,
-                modifier = Modifier.padding(top = 12.dp)
+                                             else TextDecoration.None,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+                modifier = modifier.padding(top = 12.dp)
             )
             if (item.deadline != null) {
                 Text(item.deadline.toString(),
                     style = CustomTheme.typography.subhead,
-                    color = CustomTheme.colors.labelTertiary)
+                    textDecoration = if (item.isMade) TextDecoration.LineThrough
+                                                 else TextDecoration.None,
+                    color = CustomTheme.colors.labelTertiary,
+                    modifier = modifier)
             }
         }
-
+        IconButton(onClick = {
+            onInfoClick(item)
+        }) {
+            Icon(painter = painterResource(
+                id = R.drawable.baseline_info_outline_24),
+                contentDescription = null,
+                modifier = modifier)
+        }
     }
 }
 
 @Composable
 @Preview(showSystemUi = true, showBackground = true)
 fun MainScreenPreview() {
-    MainScreen(MainScreenViewModel())
+    MainScreen(MainScreenViewModel(), rememberNavController())
 }
