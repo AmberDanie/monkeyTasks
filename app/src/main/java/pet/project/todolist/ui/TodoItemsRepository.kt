@@ -9,6 +9,8 @@ import pet.project.todolist.ui.data.TodoItem
 import java.time.LocalDate
 import java.util.Date
 
+/* Нет изменений по сравнению с 1 ПР-ом */
+
 class TodoItemsRepository {
     // Список захардкожен внутри стейт флоу
     private val _itemsState = MutableStateFlow(
@@ -202,7 +204,7 @@ class TodoItemsRepository {
     )
     val itemsState = _itemsState.asStateFlow()
 
-    fun changeMadeStatus(item: TodoItem) {
+    suspend fun changeMadeStatus(item: TodoItem) {
         val list = _itemsState.value.toMutableList()
         list[list.indexOf(item)] = item.copy(isMade = !item.isMade)
         _itemsState.update {
@@ -210,7 +212,7 @@ class TodoItemsRepository {
         }
     }
 
-    fun updateItemInList(oldItem: TodoItem, newItem: TodoItem) {
+    suspend fun updateItemInList(oldItem: TodoItem, newItem: TodoItem) {
         val list = _itemsState.value.toMutableList()
         list[list.indexOf(oldItem)] = newItem
         _itemsState.update {
@@ -218,7 +220,7 @@ class TodoItemsRepository {
         }
     }
 
-    fun removeTodoItem(item: TodoItem) {
+    suspend fun removeTodoItem(item: TodoItem) {
         val list = _itemsState.value.toMutableList()
         list.remove(item)
         _itemsState.update {
@@ -226,12 +228,12 @@ class TodoItemsRepository {
         }
     }
 
-    fun addItemToList(item: TodoItem) {
+    suspend fun addItemToList(item: TodoItem) {
         _itemsState.update {
             it + item
         }
     }
-    fun returnTodoItemsList(): Flow<List<TodoItem>> {
+    suspend fun returnTodoItemsList(): Flow<List<TodoItem>> {
         return itemsState
     }
 }

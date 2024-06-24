@@ -39,22 +39,30 @@ class MainScreenViewModel(private val repository: TodoItemsRepository = TodoItem
     }
 
     fun updateItemInList(oldItem: TodoItem, newItem: TodoItem) {
-        repository.updateItemInList(oldItem, newItem)
-        resetCurrentItem()
+        viewModelScope.launch {
+            repository.updateItemInList(oldItem, newItem)
+            resetCurrentItem()
+        }
     }
 
     fun addTodoItem(item: TodoItem) {
-        repository.addItemToList(item)
-        resetCurrentItem()
+        viewModelScope.launch {
+            repository.addItemToList(item)
+            resetCurrentItem()
+        }
     }
 
     fun removeTodoItem(item: TodoItem) {
-        repository.removeTodoItem(item)
-        resetCurrentItem()
+        viewModelScope.launch {
+            repository.removeTodoItem(item)
+            resetCurrentItem()
+        }
     }
 
     fun checkboxClick(item: TodoItem) {
-        repository.changeMadeStatus(item)
+        viewModelScope.launch {
+            repository.changeMadeStatus(item)
+        }
     }
 
     init {

@@ -38,7 +38,8 @@ class MainActivity : ComponentActivity() {
                         enterTransition = { fadeIn() },
                         exitTransition = { fadeOut() },
                         popEnterTransition = { fadeIn() },
-                        popExitTransition = { fadeOut() }) {
+                        popExitTransition = { fadeOut() }
+                    ) {
                         composable(route = NavGraph.Main.name) {
                             MainScreen(mainScreenViewModel, navController)
                         }
