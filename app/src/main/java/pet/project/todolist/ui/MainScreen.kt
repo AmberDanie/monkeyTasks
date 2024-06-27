@@ -41,10 +41,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import pet.project.todolist.NavGraph
 import pet.project.todolist.R
-import pet.project.todolist.ui.data.TaskImportance
-import pet.project.todolist.ui.data.TodoItem
+import pet.project.todolist.data.TaskImportance
+import pet.project.todolist.data.TodoItem
 import pet.project.todolist.ui.theme.CustomTheme
+import pet.project.todolist.viewmodels.MainScreenViewModel
 
 @Composable
 fun MainScreen(
@@ -71,14 +73,6 @@ fun MainScreen(
         )
         FloatingActionButton(
             onClick = {
-//                mainScreenViewModel.addTodoItem(
-//                    TodoItem(
-//                        id = (items.last().id.toInt() + 1).toString(),
-//                        text = "Купить что-то, где-то, зачем-то, но зачем не очень понятно",
-//                        isMade = false,
-//                        creationDate = Date()
-//                    )
-//                )
                 navController.navigate(NavGraph.Task.name)
             },
             modifier = Modifier
@@ -243,6 +237,6 @@ fun ListItem(
 
 @Composable
 @Preview(showSystemUi = true, showBackground = true)
-fun MainScreenPreview() {
+private fun MainScreenPreview() {
     MainScreen(MainScreenViewModel(), rememberNavController())
 }

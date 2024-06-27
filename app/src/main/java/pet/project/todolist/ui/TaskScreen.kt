@@ -34,6 +34,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -44,14 +45,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import pet.project.todolist.R
-import pet.project.todolist.ui.data.TaskImportance
-import pet.project.todolist.ui.data.TodoItem
+import pet.project.todolist.data.TaskImportance
+import pet.project.todolist.data.TodoItem
 import pet.project.todolist.ui.theme.CustomTheme
+import pet.project.todolist.viewmodels.MainScreenViewModel
 import java.time.LocalDate
 import java.util.Calendar
 import java.util.Date
@@ -64,15 +67,19 @@ fun TaskScreen(
 ) {
     val mContext = LocalContext.current
 
-    val msState = mainScreenViewModel.msState.collectAsState()
-    val items = msState.value.itemsList
-    val item = msState.value.currentItem
+    val msState by mainScreenViewModel.msState.collectAsState()
+    val items = msState.itemsList
+    val item = msState.currentItem
 
     var menuExpanded by remember { mutableStateOf(false) }
-    var switchState: Boolean by remember { mutableStateOf(false)}
+    var switchState: Boolean by remember { mutableStateOf(false) }
 
-    var inputText by remember {mutableStateOf(item?.text ?: "")}
-    var importanceStatus by remember { mutableStateOf(item?.importance?.importanceString ?: "Нет") }
+    var inputText by remember { mutableStateOf(item?.text ?: "") }
+    var importanceStatus by remember {
+        mutableIntStateOf(
+            item?.importance?.importanceString ?: R.string.Default
+        )
+    }
 
     val mYear: Int
     val mMonth: Int
@@ -86,254 +93,295 @@ fun TaskScreen(
 
     mCalendar.time = Date()
 
-    val mDate = remember { mutableStateOf("") }
+    var mDate by remember { mutableStateOf("") }
 
     val mDatePickerDialog = DatePickerDialog(
-        mContext,
-        if (CustomTheme.colors.isLight) R.style.DatePickerLightTheme
-                                   else R.style.DatePickerDarkTheme,
-        { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
-            mDate.value = "$mYear-${if (mMonth <= 9) 0 else ""}${mMonth + 1}-$mDayOfMonth"
+        /* context = */ mContext,
+        /* themeResId = */ if (CustomTheme.colors.isLight) R.style.DatePickerLightTheme
+                                                       else R.style.DatePickerDarkTheme,
+        /* listener = */ { _: DatePicker, year: Int, month: Int, day: Int ->
+            mDate = "$year-${if (month <= 8) 0 else ""}" +
+                    "${month + 1}-${if (day <= 9) 0 else ""}$day"
+
         },
-        mYear,
-        mMonth,
-        mDay
+        /* year = */ mYear,
+        /* monthOfYear = */ mMonth,
+        /* dayOfMonth = */ mDay
     )
 
-    Box {
-        Column {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                IconButton(
-                    onClick = {
-                        mainScreenViewModel.resetCurrentItem()
-                        navController.popBackStack()
-                    },
-                    modifier = Modifier.padding(top = 16.dp, start = 8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Close,
-                        contentDescription = null,
-                        tint = CustomTheme.colors.labelPrimary,
-                        modifier = Modifier
+    Column {
+        TaskTitle(
+            onClose = {
+                mainScreenViewModel.resetCurrentItem()
+                navController.popBackStack()
+            },
+            onAccept = {
+                val deadline = if (mDate != "") LocalDate.parse(mDate)
+                    else if (switchState) null
+                    else if (item?.deadline != null) item.deadline
+                    else null
+                val importance = when (importanceStatus) {
+                    R.string.Default -> TaskImportance.DEFAULT
+                     R.string.Low -> TaskImportance.LOW
+                    else -> TaskImportance.HIGH
+                }
+                if (item == null) {
+                    mainScreenViewModel.addTodoItem(
+                        TodoItem(
+                            id = if (items.isNotEmpty())
+                                    (items.maxBy { it.id.toInt() }.id.toInt() + 1).toString()
+                                 else "0",
+                            text = inputText,
+                            importance = importance,
+                            deadline = deadline,
+                            creationDate = Date()
+                        )
+                    )
+                } else {
+                    mainScreenViewModel.updateItemInList(
+                        item, item.copy(
+                            text = inputText,
+                            importance = importance,
+                            deadline = deadline,
+                            changeDate = Date()
+                        )
                     )
                 }
-                TextButton(
-                    enabled = inputText != "",
-                    onClick = {
-                        val deadline = if (mDate.value != "") LocalDate.parse(mDate.value) else null
-                        val importance = when (importanceStatus) {
-                            "Нет" -> TaskImportance.DEFAULT
-                            "Низкий" -> TaskImportance.LOW
-                            else -> TaskImportance.HIGH
-                        }
-                        if (item == null) {
-                            mainScreenViewModel.addTodoItem(
-                                TodoItem(
-                                    id = (items.maxBy { it.id.toInt() }.id.toInt() + 1).toString(),
-                                    text = inputText,
-                                    importance = importance,
-                                    deadline = deadline,
-                                    creationDate = Date()
-                                )
-                            )
-                        } else {
-                            mainScreenViewModel.updateItemInList(
-                                item, item.copy(
-                                    text = inputText,
-                                    importance = importance,
-                                    deadline = deadline,
-                                    changeDate = Date()
-                                )
-                            )
-                        }
-                        navController.popBackStack()
-                    },
-                    modifier = Modifier.padding(end = 4.dp, top = 16.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.save),
-                        style = CustomTheme.typography.button,
-                        color = if (inputText != "") CustomTheme.colors.blue
-                        else CustomTheme.colors.gray,
-                        modifier = Modifier
-                    )
-                }
-            }
-            Spacer(Modifier.height(24.dp))
-            Column(
-                modifier = Modifier.verticalScroll(
+                navController.popBackStack()
+            },
+            inputText = inputText
+        )
+        Spacer(Modifier.height(24.dp))
+        Column(
+            modifier = modifier
+                .verticalScroll(
                     rememberScrollState()
-                ).weight(1f, fill = false)
+                )
+                .weight(1f, fill = false)
+        ) {
+            ElevatedCard(
+                colors = CardDefaults.elevatedCardColors(
+                    containerColor = CustomTheme.colors.backSecondary,
+                    contentColor = CustomTheme.colors.labelSecondary
+                ),
+                elevation = CardDefaults.elevatedCardElevation(
+                    2.dp
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
             ) {
-                ElevatedCard(
-                    colors = CardDefaults.elevatedCardColors(
-                        containerColor = CustomTheme.colors.backSecondary,
-                        contentColor = CustomTheme.colors.labelSecondary
+                TextField(
+                    value = inputText,
+                    onValueChange = {
+                        inputText = it
+                    },
+                    minLines = 3,
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = CustomTheme.colors.backSecondary,
+                        focusedContainerColor = CustomTheme.colors.backSecondary,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent
                     ),
-                    elevation = CardDefaults.elevatedCardElevation(
-                        2.dp
-                    ),
+                    placeholder = {
+                        Text(
+                            stringResource(R.string.task_placeholder),
+                            color = CustomTheme.colors.gray,
+                            style = CustomTheme.typography.body
+                        )
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-                ) {
-                    TextField(
-                        value = inputText,
-                        onValueChange = {
-                            inputText = it
-                        },
-                        minLines = 3,
-                        colors = TextFieldDefaults.colors(
-                            unfocusedContainerColor = CustomTheme.colors.backSecondary,
-                            focusedContainerColor = CustomTheme.colors.backSecondary,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent
-                        ),
-
-                        placeholder = {
-                            Text(
-                                "Что надо сделать...",
-                                color = CustomTheme.colors.gray,
-                                style = CustomTheme.typography.body
-                            )
-                        },
-
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-                Box {
-                    Column(modifier = Modifier
-                        .padding(start = 16.dp, top = 12.dp)
-                        .clickable {
-                            menuExpanded = true
-                        }) {
-                        Text(
-                            text = "Важность",
-                            style = CustomTheme.typography.body,
-                            color = CustomTheme.colors.labelPrimary
-                        )
-                        Text(
-                            text = importanceStatus,
-                            style = CustomTheme.typography.subhead,
-                            color = CustomTheme.colors.gray
-                        )
-                    }
-                    DropdownMenu(
-                        expanded = menuExpanded,
-                        onDismissRequest = { menuExpanded = false },
-                        modifier = Modifier.padding(start = 8.dp, bottom = 16.dp)
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Нет") },
-                            onClick = {
-                                importanceStatus = "Нет"
-                                menuExpanded = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Низкий") },
-                            onClick = {
-                                importanceStatus = "Низкий"
-                                menuExpanded = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Высокий", color = CustomTheme.colors.red) },
-                            onClick = {
-                                importanceStatus = "Высокий"
-                                menuExpanded = false
-                            },
-                            leadingIcon = {
-                                Icon(
-                                    painter = painterResource(
-                                        id = R.drawable.baseline_priority_high_24
-                                    ),
-                                    contentDescription = null,
-                                    tint = CustomTheme.colors.red
-                                )
-                            }
-                        )
-                    }
-                }
-                HorizontalDivider(
-                    thickness = 2.dp,
-                    color = CustomTheme.colors.supportSeparator,
-                    modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp)
                 )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(modifier = Modifier.padding(start = 16.dp)) {
-                        Text(
-                            text = "Сделать до",
-                            style = CustomTheme.typography.body,
-                            color = CustomTheme.colors.labelPrimary,
-                            modifier = Modifier.padding(top = 16.dp)
-                        )
-                        Text(
-                            text = mDate.value,
-                            style = CustomTheme.typography.subhead,
-                            color = CustomTheme.colors.blue
-                        )
-                    }
-                    Switch(
-                        checked = switchState,
-                        onCheckedChange = {
-                            switchState = !switchState
-                            if (switchState) {
-                                mDatePickerDialog.show()
-                            }
-                        },
-                        colors = SwitchDefaults.colors(
-                            uncheckedThumbColor = CustomTheme.colors.white,
-                            uncheckedBorderColor = Color.Transparent,
-                            uncheckedTrackColor = CustomTheme.colors.grayLight,
-                            checkedBorderColor = Color.Transparent,
-                            checkedThumbColor = CustomTheme.colors.blue,
-                            checkedTrackColor = CustomTheme.colors.grayLight
-                        ),
-                        modifier = Modifier
-                            .scale(0.75f)
-                            .padding(end = 12.dp, top = 8.dp)
-                    )
-                }
-                HorizontalDivider(
-                    thickness = 2.dp,
-                    color = CustomTheme.colors.supportSeparator,
-                    modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp)
-                )
-                Row(
-                    modifier = Modifier
-                        .padding(start = 12.dp, top = 16.dp)
-                        .clickable(enabled = item != null) {
-                            mainScreenViewModel.removeTodoItem(item!!)
-                            navController.popBackStack()
-                        }
-                ) {
-                    Icon(
-                        Icons.Filled.Delete,
-                        contentDescription = "Delete item",
-                        tint = if (item != null) CustomTheme.colors.red
-                        else CustomTheme.colors.gray
+            }
+            Box {
+                Column(modifier = Modifier
+                    .padding(start = 16.dp, top = 12.dp)
+                    .clickable {
+                        menuExpanded = true
+                    }) {
+                    Text(
+                        text = stringResource(R.string.Importance),
+                        style = CustomTheme.typography.body,
+                        color = CustomTheme.colors.labelPrimary
                     )
                     Text(
-                        text = "Удалить",
-                        color = if (item != null) CustomTheme.colors.red
-                        else CustomTheme.colors.gray,
-                        style = CustomTheme.typography.body,
-                        modifier = Modifier.padding(start = 4.dp, top = 3.dp)
+                        text = stringResource(importanceStatus),
+                        style = CustomTheme.typography.subhead,
+                        color = CustomTheme.colors.gray
                     )
                 }
-                Spacer(Modifier.height(16.dp))
+                TaskDropDownMenu(
+                    menuExpanded = menuExpanded,
+                    onDismiss = { menuExpanded = false },
+                    onClick = {
+                        importanceStatus = it
+                        menuExpanded = false
+                    }
+                )
             }
+            HorizontalDivider(
+                thickness = 2.dp,
+                color = CustomTheme.colors.supportSeparator,
+                modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp)
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.padding(start = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.Deadline_title),
+                        style = CustomTheme.typography.body,
+                        color = CustomTheme.colors.labelPrimary,
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+                    Text(
+                        text = item?.deadline?.toString() ?: mDate,
+                        textDecoration = if (switchState && item?.deadline != null) TextDecoration.LineThrough
+                                                          else TextDecoration.None,
+                        style = CustomTheme.typography.subhead,
+                        color = if (switchState && item?.deadline != null) CustomTheme.colors.gray
+                                                          else CustomTheme.colors.blue
+                    )
+                    Text(
+                        text = if (item?.deadline != null && mDate != "" &&
+                            mDate != item.deadline.toString()) mDate else "",
+                        style = CustomTheme.typography.subhead,
+                        color = CustomTheme.colors.blue
+                    )
+                }
+                Switch(
+                    checked = switchState,
+                    onCheckedChange = {
+                        switchState = !switchState
+                        if (switchState) {
+                            mDatePickerDialog.show()
+                        } else {
+                            mDate = ""
+                        }
+                    },
+                    colors = SwitchDefaults.colors(
+                        uncheckedThumbColor = CustomTheme.colors.white,
+                        uncheckedBorderColor = Color.Transparent,
+                        uncheckedTrackColor = CustomTheme.colors.grayLight,
+                        checkedBorderColor = Color.Transparent,
+                        checkedThumbColor = CustomTheme.colors.blue,
+                        checkedTrackColor = CustomTheme.colors.grayLight
+                    ),
+                    modifier = Modifier
+                        .scale(0.75f)
+                        .padding(end = 12.dp, top = 8.dp)
+                )
+            }
+            HorizontalDivider(
+                thickness = 2.dp,
+                color = CustomTheme.colors.supportSeparator,
+                modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp)
+            )
+            Row(
+                modifier = Modifier
+                    .padding(start = 12.dp, top = 16.dp)
+                    .clickable(enabled = item != null) {
+                        mainScreenViewModel.removeTodoItem(item!!)
+                        navController.popBackStack()
+                    }
+            ) {
+                Icon(
+                    Icons.Filled.Delete,
+                    contentDescription = "Delete item",
+                    tint = if (item != null) CustomTheme.colors.red
+                    else CustomTheme.colors.gray
+                )
+                Text(
+                    text = stringResource(R.string.Delete),
+                    color = if (item != null) CustomTheme.colors.red
+                    else CustomTheme.colors.gray,
+                    style = CustomTheme.typography.body,
+                    modifier = Modifier.padding(start = 4.dp, top = 3.dp)
+                )
+            }
+            Spacer(Modifier.height(16.dp))
         }
+    }
+}
+
+@Composable
+fun TaskTitle(
+    onClose: () -> Unit,
+    onAccept: () -> Unit,
+    inputText: String
+) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        IconButton(
+            onClick = onClose,
+            modifier = Modifier.padding(top = 16.dp, start = 8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Close,
+                contentDescription = null,
+                tint = CustomTheme.colors.labelPrimary,
+                modifier = Modifier
+            )
+        }
+        TextButton(
+            enabled = inputText != "",
+            onClick = onAccept,
+            modifier = Modifier.padding(end = 4.dp, top = 16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.save),
+                style = CustomTheme.typography.button,
+                color = if (inputText != "") CustomTheme.colors.blue
+                else CustomTheme.colors.gray,
+                modifier = Modifier
+            )
+        }
+    }
+}
+
+@Composable
+fun TaskDropDownMenu(
+    menuExpanded: Boolean,
+    onDismiss: () -> Unit,
+    onClick: (importanceString: Int) -> Unit
+) {
+    DropdownMenu(
+        expanded = menuExpanded,
+        onDismissRequest = onDismiss,
+        modifier = Modifier.padding(start = 8.dp, bottom = 16.dp)
+    ) {
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.Default)) },
+            onClick = { onClick(R.string.Default) }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.Low)) },
+            onClick = { onClick(R.string.Low) }
+        )
+        DropdownMenuItem(
+            text = {
+                Text(
+                    stringResource(R.string.High),
+                    color = CustomTheme.colors.red
+                )
+            },
+            onClick = { onClick(R.string.High) },
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(
+                        id = R.drawable.baseline_priority_high_24
+                    ),
+                    contentDescription = null,
+                    tint = CustomTheme.colors.red
+                )
+            }
+        )
     }
 }
 

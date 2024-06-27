@@ -1,4 +1,4 @@
-package pet.project.todolist.ui
+package pet.project.todolist.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -6,13 +6,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import pet.project.todolist.ui.data.TodoItem
+import pet.project.todolist.data.MainScreenUiState
+import pet.project.todolist.data.TodoItem
+import pet.project.todolist.data.TodoItemsRepository
 
 class MainScreenViewModel(private val repository: TodoItemsRepository = TodoItemsRepository()) : ViewModel() {
 
     private val _msState = MutableStateFlow(MainScreenUiState())
     val msState = _msState.asStateFlow()
-
 
     fun showOrHideCompletedTasks() {
         _msState.update {
@@ -55,7 +56,13 @@ class MainScreenViewModel(private val repository: TodoItemsRepository = TodoItem
     fun removeTodoItem(item: TodoItem) {
         viewModelScope.launch {
             repository.removeTodoItem(item)
-            resetCurrentItem()
+        }
+        resetCurrentItem()
+    }
+
+    fun resetDeadline(item: TodoItem) {
+        viewModelScope.launch {
+            repository.resetDeadline(item)
         }
     }
 
