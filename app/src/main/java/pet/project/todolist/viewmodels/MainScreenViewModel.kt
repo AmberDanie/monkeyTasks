@@ -9,6 +9,8 @@ import kotlinx.coroutines.launch
 import pet.project.todolist.data.TodoItem
 import pet.project.todolist.data.TodoItemsRepository
 
+/* part 2 */
+
 class MainScreenViewModel(private val repository: TodoItemsRepository = TodoItemsRepository()) : ViewModel() {
 
     private val _msState = MutableStateFlow(MainScreenUiState())

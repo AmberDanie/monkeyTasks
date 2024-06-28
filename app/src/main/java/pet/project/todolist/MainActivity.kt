@@ -14,10 +14,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import pet.project.todolist.ui.MainScreen
-import pet.project.todolist.viewmodels.MainScreenViewModel
 import pet.project.todolist.ui.TaskScreen
-import pet.project.todolist.ui.theme.CustomTheme
 import pet.project.todolist.ui.theme.AppTheme
+import pet.project.todolist.ui.theme.CustomTheme
+import pet.project.todolist.viewmodels.MainScreenViewModel
+
+/* part 2 */
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -2,6 +2,8 @@ package pet.project.todolist.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+/* part 2 */
+
 // Light theme
 val SupportLightSeparator = Color(0x33000000)
 val SupportLightOverlay = Color(0x0F000000)

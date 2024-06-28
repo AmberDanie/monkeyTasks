@@ -9,6 +9,8 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.util.Date
 
+/* part 2 */
+
 class TodoItemsRepository : ItemsRepository<TodoItem> {
     // Список захардкожен внутри стейт флоу
     private val _itemsState = MutableStateFlow(

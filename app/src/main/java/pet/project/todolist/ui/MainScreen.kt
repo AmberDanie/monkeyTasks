@@ -53,6 +53,8 @@ import pet.project.todolist.viewmodels.MainScreenViewModel
 import java.time.LocalDate
 import java.util.Date
 
+/* part 2 */
+
 @Composable
 fun MainScreen(
     mainScreenViewModel: MainScreenViewModel,
