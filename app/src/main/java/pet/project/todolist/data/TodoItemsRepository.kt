@@ -1,15 +1,15 @@
 package pet.project.todolist.data
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.util.Date
 
-class TodoItemsRepository {
+class TodoItemsRepository : ItemsRepository<TodoItem> {
     // Список захардкожен внутри стейт флоу
     private val _itemsState = MutableStateFlow(
         listOf(
@@ -200,9 +200,8 @@ class TodoItemsRepository {
             )
         )
     )
-    val itemsState = _itemsState.asStateFlow()
 
-    suspend fun changeMadeStatus(item: TodoItem) {
+    override suspend fun changeMadeStatus(item: TodoItem) {
         withContext(Dispatchers.IO) {
             val list = _itemsState.value.toMutableList()
             list[list.indexOf(item)] = item.copy(isMade = !item.isMade)
@@ -212,7 +211,7 @@ class TodoItemsRepository {
         }
     }
 
-    suspend fun updateItemInList(oldItem: TodoItem, newItem: TodoItem) {
+    override suspend fun updateItemInList(oldItem: TodoItem, newItem: TodoItem) {
         withContext(Dispatchers.IO) {
             val list = _itemsState.value.toMutableList()
             list[list.indexOf(oldItem)] = newItem
@@ -222,7 +221,7 @@ class TodoItemsRepository {
         }
     }
 
-    suspend fun removeTodoItem(item: TodoItem) {
+    override suspend fun removeTodoItem(item: TodoItem) {
         withContext(Dispatchers.IO) {
             val list = _itemsState.value.toMutableList()
             list.remove(item)
@@ -232,17 +231,7 @@ class TodoItemsRepository {
         }
     }
 
-    suspend fun resetDeadline(item: TodoItem) {
-        withContext(Dispatchers.IO) {
-            val list = _itemsState.value.toMutableList()
-            list[list.indexOf(item)] = item.copy(deadline = null)
-            _itemsState.update {
-                list
-            }
-        }
-    }
-
-    suspend fun addItemToList(item: TodoItem) {
+    override suspend fun addItemToList(item: TodoItem) {
         withContext(Dispatchers.IO) {
             _itemsState.update {
                 it + item
@@ -250,7 +239,7 @@ class TodoItemsRepository {
         }
     }
 
-    fun returnTodoItemsList(): Flow<List<TodoItem>> {
-        return itemsState
+    override fun returnTodoItemsList(): StateFlow<List<TodoItem>> {
+        return _itemsState.asStateFlow()
     }
 }

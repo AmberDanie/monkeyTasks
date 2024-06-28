@@ -17,6 +17,7 @@ import pet.project.todolist.ui.MainScreen
 import pet.project.todolist.viewmodels.MainScreenViewModel
 import pet.project.todolist.ui.TaskScreen
 import pet.project.todolist.ui.theme.CustomTheme
+import pet.project.todolist.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,7 +26,7 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
         setContent {
-            CustomTheme {
+            AppTheme {
                 val navController = rememberNavController()
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -55,7 +56,7 @@ class MainActivity : ComponentActivity() {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun AppDarkPreview() {
-    CustomTheme(darkTheme = true) {
+    AppTheme(darkTheme = true) {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = CustomTheme.colors.backPrimary
@@ -68,7 +69,7 @@ fun AppDarkPreview() {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun AppLightPreview() {
-    CustomTheme(darkTheme = false) {
+    AppTheme(darkTheme = false) {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = CustomTheme.colors.backPrimary

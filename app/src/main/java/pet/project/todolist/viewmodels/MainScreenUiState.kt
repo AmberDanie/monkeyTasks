@@ -1,4 +1,6 @@
-package pet.project.todolist.data
+package pet.project.todolist.viewmodels
+
+import pet.project.todolist.data.TodoItem
 
 data class MainScreenUiState(
     val showCompleted: Boolean = true,

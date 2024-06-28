@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import pet.project.todolist.data.MainScreenUiState
 import pet.project.todolist.data.TodoItem
 import pet.project.todolist.data.TodoItemsRepository
 
@@ -58,12 +57,6 @@ class MainScreenViewModel(private val repository: TodoItemsRepository = TodoItem
             repository.removeTodoItem(item)
         }
         resetCurrentItem()
-    }
-
-    fun resetDeadline(item: TodoItem) {
-        viewModelScope.launch {
-            repository.resetDeadline(item)
-        }
     }
 
     fun checkboxClick(item: TodoItem) {
