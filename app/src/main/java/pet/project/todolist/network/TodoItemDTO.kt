@@ -9,6 +9,10 @@ import pet.project.todolist.utils.toLocalDate
 import pet.project.todolist.utils.toLocalDateTime
 import pet.project.todolist.utils.toTimestamp
 
+/**
+ * TodoItemDto represents server data format
+ * */
+
 @Entity(tableName = "todoItems")
 data class TodoItemDto(
     @PrimaryKey

@@ -5,8 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 
-/* part 2 */
-
+/**
+ * CustomColors handle CustomTheme current color palette
+ * */
 class CustomColors(
     supportSeparator: Color,
     supportOverlay: Color,

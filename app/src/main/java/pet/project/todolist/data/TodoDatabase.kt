@@ -6,6 +6,10 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import pet.project.todolist.network.TodoItemDto
 
+/**
+ * TodoDatabase creates local database to store data locally
+ * */
+
 @Database(
     entities = [
         TodoItemDto::class

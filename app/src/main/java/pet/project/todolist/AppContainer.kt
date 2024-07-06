@@ -25,6 +25,10 @@ interface AppContainer {
     val todoItemsRepository: ItemsRepository<TodoItem>
 }
 
+/**
+ * AppContainer responsible for creating main data handling objects
+ * */
+
 class TodoAppContainer(private val context: Context) : AppContainer {
     private val baseUrl = BuildConfig.BASE_URL
 

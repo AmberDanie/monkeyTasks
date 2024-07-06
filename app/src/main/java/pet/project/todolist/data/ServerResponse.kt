@@ -3,6 +3,10 @@ package pet.project.todolist.data
 import com.google.gson.annotations.SerializedName
 import pet.project.todolist.network.TodoItemDto
 
+/**
+ * ServerResponse represents fields received from server requesting
+ * */
+
 data class ServerResponse(
     @SerializedName(value = "status")
     val status: String,

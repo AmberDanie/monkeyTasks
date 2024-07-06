@@ -13,6 +13,10 @@ import pet.project.todolist.TodoListApplication
 import pet.project.todolist.data.ItemsRepository
 import pet.project.todolist.data.TodoItem
 
+/**
+ *  TaskScreenViewModel control flow between TaskScreen and Repository class
+ * */
+
 class TaskScreenViewModel(private val repository: ItemsRepository<TodoItem>) : ViewModel() {
     private val _tsState = MutableStateFlow(TaskScreenUiState())
     val tsState = _tsState.asStateFlow()

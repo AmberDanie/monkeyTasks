@@ -1,6 +1,8 @@
 package pet.project.todolist.navigation
 
-/* part 2 */
+/**
+ * TodoListNavGraph contains NavGraph route' names
+ * */
 
 enum class TodoListNavGraph {
     Main, Task

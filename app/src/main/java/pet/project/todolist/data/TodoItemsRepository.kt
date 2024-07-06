@@ -20,7 +20,9 @@ import pet.project.todolist.network.toNetworkDto
 import java.lang.Thread.sleep
 import java.util.UUID
 
-/* part 2 */
+/**
+ * TodoItemsRepository handle data from sources
+ * */
 
 class TodoItemsRepository(
     private val todoItemService: TodoItemService,

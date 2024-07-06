@@ -17,7 +17,9 @@ import pet.project.todolist.ui.theme.CustomTheme
 import pet.project.todolist.ui.viewmodels.MainScreenViewModel
 import pet.project.todolist.ui.viewmodels.TaskScreenViewModel
 
-/* part 2 */
+/**
+ * MainActivity responsible for setting UI-layer content
+ * */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

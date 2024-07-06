@@ -7,6 +7,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 
+/**
+ * GetDataFromServerWorker creates worker for background tasks management
+ * */
+
 class GetDataFromServerWorker(
     private val context: Context,
     workerParams: WorkerParameters,

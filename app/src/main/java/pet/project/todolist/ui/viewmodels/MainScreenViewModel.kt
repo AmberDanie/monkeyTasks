@@ -16,7 +16,10 @@ import pet.project.todolist.data.ItemsRepository
 import pet.project.todolist.data.LoadingState
 import pet.project.todolist.data.TodoItem
 
-/* part 2 */
+
+/**
+ *  MainScreenViewModel control flow between MainScreen and Repository class
+ * */
 
 class MainScreenViewModel(private val repository: ItemsRepository<TodoItem>) : ViewModel() {
 
