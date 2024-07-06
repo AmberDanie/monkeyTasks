@@ -50,31 +50,28 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import pet.project.todolist.R
 import pet.project.todolist.data.TaskImportance
 import pet.project.todolist.data.TodoItem
 import pet.project.todolist.ui.theme.AppTheme
 import pet.project.todolist.ui.theme.CustomTheme
-import pet.project.todolist.viewmodels.MainScreenViewModel
+import pet.project.todolist.ui.viewmodels.TaskScreenViewModel
 import java.time.LocalDate
 import java.util.Calendar
 import java.util.Date
+import java.util.UUID
 
 /* part 2 */
 
 @Composable
 fun TaskScreen(
-    mainScreenViewModel: MainScreenViewModel,
-    navController: NavController,
-    modifier: Modifier = Modifier
+    taskScreenViewModel: TaskScreenViewModel,
+    moveBack: () -> Unit
 ) {
     val mContext = LocalContext.current
 
-    val msState by mainScreenViewModel.msState.collectAsState()
-    val items = msState.itemsList
-    val item = msState.currentItem
+    val tsState by taskScreenViewModel.tsState.collectAsState()
+    val item = tsState.currentItem
 
     var mDate by remember { mutableStateOf("") }
 
@@ -97,63 +94,74 @@ fun TaskScreen(
     mCalendar.time = Date()
 
     val mDatePickerDialog = DatePickerDialog(
-        /* context = */ mContext,
-        /* themeResId = */ if (CustomTheme.colors.isLight) R.style.DatePickerLightTheme
-        else R.style.DatePickerDarkTheme,
-        /* listener = */ { _: DatePicker, year: Int, month: Int, day: Int ->
-            mDate = "$year-${if (month <= 8) 0 else ""}" +
-                    "${month + 1}-${if (day <= 9) 0 else ""}$day"
+        /* context = */
+        mContext,
+        /* themeResId = */
+        if (CustomTheme.colors.isLight) {
+            R.style.DatePickerLightTheme
+        } else {
+            R.style.DatePickerDarkTheme
         },
-        /* year = */ mYear,
-        /* monthOfYear = */ mMonth,
-        /* dayOfMonth = */ mDay
+        /* listener = */
+        { _: DatePicker, year: Int, month: Int, day: Int ->
+            mDate = "$year-${if (month <= 8) 0 else ""}" +
+                "${month + 1}-${if (day <= 9) 0 else ""}$day"
+        },
+        /* year = */
+        mYear,
+        /* monthOfYear = */
+        mMonth,
+        /* dayOfMonth = */
+        mDay
     )
 
     Column {
         TaskTitle(
             onClose = {
-                mainScreenViewModel.resetCurrentItem()
-                navController.popBackStack()
+                moveBack()
+                taskScreenViewModel.resetCurrentItem()
             },
             onAccept = {
-                val deadline = if (mDate != "") LocalDate.parse(mDate)
-                else if (switchState) null
-                else if (item?.deadline != null) item.deadline
-                else null
+                moveBack()
+                val deadline = if (mDate != "") {
+                    LocalDate.parse(mDate)
+                } else if (switchState) {
+                    null
+                } else if (item?.deadline != null) {
+                    item.deadline
+                } else {
+                    null
+                }
                 val importance = when (importanceStatus) {
                     R.string.Default -> TaskImportance.DEFAULT
                     R.string.Low -> TaskImportance.LOW
                     else -> TaskImportance.HIGH
                 }
                 if (item == null) {
-                    mainScreenViewModel.addTodoItem(
+                    taskScreenViewModel.addTodoItem(
                         TodoItem(
-                            id = if (items.isNotEmpty())
-                                (items.maxBy { it.id.toInt() }.id.toInt() + 1).toString()
-                            else "0",
+                            id = UUID.randomUUID().toString(),
                             text = inputText,
                             importance = importance,
-                            deadline = deadline,
-                            creationDate = Date()
+                            deadline = deadline
                         )
                     )
                 } else {
-                    mainScreenViewModel.updateItemInList(
-                        item, item.copy(
+                    taskScreenViewModel.updateItemInList(
+                        item.id,
+                        item.copy(
                             text = inputText,
                             importance = importance,
-                            deadline = deadline,
-                            changeDate = Date()
+                            deadline = deadline
                         )
                     )
                 }
-                navController.popBackStack()
             },
             inputText = inputText
         )
         Spacer(Modifier.height(24.dp))
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .verticalScroll(
                     rememberScrollState()
                 )
@@ -181,7 +189,8 @@ fun TaskScreen(
                 color = CustomTheme.colors.supportSeparator,
                 modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp)
             )
-            TaskDeadline(item = item,
+            TaskDeadline(
+                item = item,
                 mDate = mDate,
                 switchState = switchState,
                 deadline = item?.deadline,
@@ -202,8 +211,8 @@ fun TaskScreen(
             TaskDeletion(
                 item = item,
                 onDelete = {
-                    mainScreenViewModel.removeTodoItem(item!!)
-                    navController.popBackStack()
+                    moveBack()
+                    taskScreenViewModel.removeTodoItem(item!!.id)
                 }
             )
             Spacer(Modifier.height(16.dp))
@@ -220,7 +229,7 @@ private fun TaskTitle(
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
     ) {
         IconButton(
             onClick = onClose,
@@ -241,8 +250,11 @@ private fun TaskTitle(
             Text(
                 text = stringResource(R.string.save),
                 style = CustomTheme.typography.button,
-                color = if (inputText != "") CustomTheme.colors.blue
-                else CustomTheme.colors.gray,
+                color = if (inputText != "") {
+                    CustomTheme.colors.blue
+                } else {
+                    CustomTheme.colors.gray
+                },
                 modifier = Modifier
             )
         }
@@ -300,11 +312,13 @@ private fun TaskImportance(
     importanceStatus: Int
 ) {
     Box {
-        Column(modifier = Modifier
-            .padding(start = 16.dp, top = 12.dp)
-            .clickable {
-                changeExpandedStatus()
-            }) {
+        Column(
+            modifier = Modifier
+                .padding(start = 16.dp, top = 12.dp)
+                .clickable {
+                    changeExpandedStatus()
+                }
+        ) {
             Text(
                 text = stringResource(R.string.Importance),
                 style = CustomTheme.typography.body,
@@ -399,20 +413,30 @@ private fun TaskDeadline(
             )
             Text(
                 text = item?.deadline?.toString() ?: mDate,
-                textDecoration = if (switchState && item?.deadline != null
-                    && item.deadline.toString() != mDate
-                ) TextDecoration.LineThrough
-                else TextDecoration.None,
+                textDecoration = if (switchState && item?.deadline != null &&
+                    item.deadline.toString() != mDate
+                ) {
+                    TextDecoration.LineThrough
+                } else {
+                    TextDecoration.None
+                },
                 style = CustomTheme.typography.subhead,
-                color = if (switchState && item?.deadline != null
-                    && item.deadline.toString() != mDate
-                ) CustomTheme.colors.gray
-                else CustomTheme.colors.blue
+                color = if (switchState && item?.deadline != null &&
+                    item.deadline.toString() != mDate
+                ) {
+                    CustomTheme.colors.gray
+                } else {
+                    CustomTheme.colors.blue
+                }
             )
             Text(
                 text = if (item?.deadline != null && mDate != "" &&
                     mDate != deadline.toString()
-                ) mDate else "",
+                ) {
+                    mDate
+                } else {
+                    ""
+                },
                 style = CustomTheme.typography.subhead,
                 color = CustomTheme.colors.blue
             )
@@ -450,13 +474,19 @@ private fun TaskDeletion(
         Icon(
             Icons.Filled.Delete,
             contentDescription = "Delete item",
-            tint = if (item != null) CustomTheme.colors.red
-            else CustomTheme.colors.gray
+            tint = if (item != null) {
+                CustomTheme.colors.red
+            } else {
+                CustomTheme.colors.gray
+            }
         )
         Text(
             text = stringResource(R.string.Delete),
-            color = if (item != null) CustomTheme.colors.red
-            else CustomTheme.colors.gray,
+            color = if (item != null) {
+                CustomTheme.colors.red
+            } else {
+                CustomTheme.colors.gray
+            },
             style = CustomTheme.typography.body,
             modifier = Modifier.padding(start = 4.dp, top = 3.dp)
         )
@@ -471,11 +501,9 @@ private fun TaskScreenPreview() {
             modifier = Modifier.fillMaxSize(),
             color = CustomTheme.colors.backPrimary
         ) {
-            TaskScreen(MainScreenViewModel(), rememberNavController())
         }
     }
 }
-
 
 @Composable
 @Preview(showBackground = true, showSystemUi = true)
@@ -485,7 +513,6 @@ private fun TaskScreenDarkPreview() {
             modifier = Modifier.fillMaxSize(),
             color = CustomTheme.colors.backPrimary
         ) {
-            TaskScreen(MainScreenViewModel(), rememberNavController())
         }
     }
 }

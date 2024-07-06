@@ -3,30 +3,34 @@ package pet.project.todolist
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import pet.project.todolist.ui.MainScreen
-import pet.project.todolist.ui.TaskScreen
+import pet.project.todolist.navigation.TodoListNavHost
 import pet.project.todolist.ui.theme.AppTheme
 import pet.project.todolist.ui.theme.CustomTheme
-import pet.project.todolist.viewmodels.MainScreenViewModel
+import pet.project.todolist.ui.viewmodels.MainScreenViewModel
+import pet.project.todolist.ui.viewmodels.TaskScreenViewModel
 
 /* part 2 */
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-
-        val mainScreenViewModel = MainScreenViewModel()
-
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+
+        val mainScreenViewModel: MainScreenViewModel by viewModels(factoryProducer = {
+            MainScreenViewModel.Factory
+        })
+
+        val taskScreenViewModel: TaskScreenViewModel by viewModels(factoryProducer = {
+            TaskScreenViewModel.Factory
+        })
+
         setContent {
             AppTheme {
                 val navController = rememberNavController()
@@ -34,21 +38,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = CustomTheme.colors.backPrimary
                 ) {
-                    NavHost(
+                    TodoListNavHost(
                         navController = navController,
-                        startDestination = NavGraph.Main.name,
-                        enterTransition = { fadeIn() },
-                        exitTransition = { fadeOut() },
-                        popEnterTransition = { fadeIn() },
-                        popExitTransition = { fadeOut() }
-                    ) {
-                        composable(route = NavGraph.Main.name) {
-                            MainScreen(mainScreenViewModel, navController)
-                        }
-                        composable(route = NavGraph.Task.name) {
-                            TaskScreen(mainScreenViewModel, navController)
-                        }
-                    }
+                        mainScreenViewModel = mainScreenViewModel,
+                        taskScreenViewModel = taskScreenViewModel
+                    )
                 }
             }
         }
@@ -63,7 +57,6 @@ fun AppDarkPreview() {
             modifier = Modifier.fillMaxSize(),
             color = CustomTheme.colors.backPrimary
         ) {
-            MainScreen(MainScreenViewModel(), rememberNavController())
         }
     }
 }
@@ -76,7 +69,6 @@ fun AppLightPreview() {
             modifier = Modifier.fillMaxSize(),
             color = CustomTheme.colors.backPrimary
         ) {
-            MainScreen(MainScreenViewModel(), rememberNavController())
         }
     }
 }

@@ -1,247 +1,214 @@
 package pet.project.todolist.data
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import java.time.LocalDate
-import java.util.Date
+import pet.project.todolist.BuildConfig
+import pet.project.todolist.data.AppPreferences.DATABASE_REVISION
+import pet.project.todolist.data.AppPreferences.DEVICE_ID
+import pet.project.todolist.data.AppPreferences.SERVER_REVISION
+import pet.project.todolist.network.TodoItemDto
+import pet.project.todolist.network.TodoItemRequestDto
+import pet.project.todolist.network.TodoItemService
+import pet.project.todolist.network.TodoListRequestDto
+import pet.project.todolist.network.toNetworkDto
+import java.lang.Thread.sleep
+import java.util.UUID
 
 /* part 2 */
 
-class TodoItemsRepository : ItemsRepository<TodoItem> {
-    // Список захардкожен внутри стейт флоу
-    private val _itemsState = MutableStateFlow(
-        listOf(
-            TodoItem(
-                id = "0",
-                text = "Купить что-то",
-                isMade = true,
-                deadline = LocalDate.parse("2024-06-25"),
-                creationDate = Date()
-            ),
-            TodoItem(
-                id = "1",
-                text = "Купить что-то",
-                importance = TaskImportance.LOW,
-                isMade = true,
-                creationDate = Date()
-            ),
-            TodoItem(
-                id = "2",
-                text = "Купить что-то, где-то, зачем-то, но зачем не очень понятно",
-                isMade = false,
-                creationDate = Date()
-            ),
-            TodoItem(
-                id = "3",
-                text = "Купить что-то, где-то, зачем-то, но зачем не очень понятно, " +
-                        "но точно чтобы показать как образовывается список из элементов",
-                isMade = false,
-                deadline = LocalDate.parse("2024-06-29"),
-                creationDate = Date()
-            ),
-            TodoItem(
-                id = "4",
-                text = "Купить что-то",
-                importance = TaskImportance.HIGH,
-                isMade = false,
-                creationDate = Date()
-            ),
-            TodoItem(
-                id = "5",
-                text = "Купить что-то",
-                isMade = false,
-                importance = TaskImportance.LOW,
-                creationDate = Date()
-            ),
-            TodoItem(
-                id = "6",
-                text = "Доделать ДЗ",
-                isMade = true,
-                deadline = LocalDate.parse("2024-06-22"),
-                importance = TaskImportance.HIGH,
-                creationDate = Date()
-            ),
-            TodoItem(
-                id = "7",
-                text = "Купить что-то",
-                isMade = true,
-                creationDate = Date()
-            ),
-            TodoItem(
-                id = "8",
-                text = "Купить что-то",
-                isMade = true,
-                creationDate = Date()
-            ),
-            TodoItem(
-                id = "9",
-                text = "Купить что-то",
-                importance = TaskImportance.HIGH,
-                isMade = false,
-                creationDate = Date()
-            ),
-            TodoItem(
-                id = "10",
-                text = "Купить что-то, где-то, зачем-то, но зачем не очень понятно",
-                isMade = false,
-                creationDate = Date()
-            ),
-            TodoItem(
-                id = "11",
-                text = "Купить что-то, где-то, зачем-то, но зачем не очень понятно",
-                isMade = false,
-                creationDate = Date()
-            ),
-            TodoItem(
-                id = "12",
-                text = "Купить что-то, где-то, зачем-то, но зачем не очень понятно",
-                isMade = false,
-                creationDate = Date()
-            ),
-            TodoItem(
-                id = "13",
-                text = "Lorem ipsum dolor sit amet, " +
-                        "consectetur adipiscing elit. " +
-                        "Duis vehicula et mauris sit amet bibendum. " +
-                        "Aenean nec rutrum ante. Maecenas a " +
-                        "ultricies nulla. Cras diam urna, " +
-                        "mollis eget malesuada eget, eleifend eget mi. " +
-                        "Morbi eget luctus leo. Vivamus ac felis nisl. " +
-                        "Fusce ullamcorper condimentum mollis. Vivamus consectetur " +
-                        "leo placerat nulla congue, eget consectetur sapien viverra. " +
-                        "Morbi tincidunt, mi eget efficitur placerat, augue lectus blandit " +
-                        "lorem, vel dapibus massa eros vel sapien. Vestibulum tristique nisi ipsum, " +
-                        "eget semper ex feugiat eu",
-                isMade = true,
-                importance = TaskImportance.HIGH,
-                creationDate = Date()),
-            TodoItem(
-                id = "14",
-                text = "Купить что-то, где-то, зачем-то, но зачем не очень понятно",
-                importance = TaskImportance.HIGH,
-                deadline = LocalDate.parse("2024-06-22"),
-                isMade = true,
-                creationDate = Date()
-            ),
-            TodoItem(
-                id = "15",
-                text = "Lorem ipsum dolor sit amet, " +
-                        "consectetur adipiscing elit. " +
-                        "Duis vehicula et mauris sit amet bibendum. " +
-                        "Aenean nec rutrum ante. Maecenas a " +
-                        "ultricies nulla. Cras diam urna, " +
-                        "mollis eget malesuada eget, eleifend eget mi. " +
-                        "Morbi eget luctus leo. Vivamus ac felis nisl. " +
-                        "Fusce ullamcorper condimentum mollis. Vivamus consectetur " +
-                        "leo placerat nulla congue, eget consectetur sapien viverra. " +
-                        "Morbi tincidunt, mi eget efficitur placerat, augue lectus blandit " +
-                        "lorem, vel dapibus massa eros vel sapien. Vestibulum tristique nisi ipsum, " +
-                        "eget semper ex feugiat eu" +
-                        "Lorem ipsum dolor sit amet, " +
-                        "consectetur adipiscing elit. " +
-                        "Duis vehicula et mauris sit amet bibendum. " +
-                        "Aenean nec rutrum ante. Maecenas a " +
-                        "ultricies nulla. Cras diam urna, " +
-                        "mollis eget malesuada eget, eleifend eget mi. " +
-                        "Morbi eget luctus leo. Vivamus ac felis nisl. " +
-                        "Fusce ullamcorper condimentum mollis. Vivamus consectetur " +
-                        "leo placerat nulla congue, eget consectetur sapien viverra. " +
-                        "Morbi tincidunt, mi eget efficitur placerat, augue lectus blandit " +
-                        "lorem, vel dapibus massa eros vel sapien. Vestibulum tristique nisi ipsum, " +
-                        "eget semper ex feugiat eu" +
-                        "Lorem ipsum dolor sit amet, " +
-                        "consectetur adipiscing elit. " +
-                        "Duis vehicula et mauris sit amet bibendum. " +
-                        "Aenean nec rutrum ante. Maecenas a " +
-                        "ultricies nulla. Cras diam urna, " +
-                        "mollis eget malesuada eget, eleifend eget mi. " +
-                        "Morbi eget luctus leo. Vivamus ac felis nisl. " +
-                        "Fusce ullamcorper condimentum mollis. Vivamus consectetur " +
-                        "leo placerat nulla congue, eget consectetur sapien viverra. " +
-                        "Morbi tincidunt, mi eget efficitur placerat, augue lectus blandit " +
-                        "lorem, vel dapibus massa eros vel sapien. Vestibulum tristique nisi ipsum, " +
-                        "eget semper ex feugiat eu",
-                isMade = false,
-                importance = TaskImportance.LOW,
-                deadline = LocalDate.parse("2024-12-24"),
-                creationDate = Date()),
-            TodoItem(
-                id = "16",
-                text = "Купить что-то",
-                importance = TaskImportance.HIGH,
-                isMade = false,
-                creationDate = Date()
-            ),
-            TodoItem(
-                id = "17",
-                text = "Купить что-то, где-то, зачем-то, но зачем не очень понятно",
-                isMade = false,
-                creationDate = Date()
-            ),
-            TodoItem(
-                id = "18",
-                text = "Купить что-то, где-то, зачем-то, но зачем не очень понятно",
-                isMade = false,
-                creationDate = Date()
-            ),
-            TodoItem(
-                id = "19",
-                text = "Купить что-то, где-то, зачем-то, но зачем не очень понятно",
-                isMade = false,
-                creationDate = Date()
-            ),
-            TodoItem(
-                id = "20",
-                text = "Устать",
-                isMade = true,
-                creationDate = Date()
+class TodoItemsRepository(
+    private val todoItemService: TodoItemService,
+    private val settingsDataStore: DataStore<Preferences>,
+    private val itemDao: TodoItemDao
+) : ItemsRepository<TodoItem> {
+    override suspend fun changeMadeStatus(itemId: String) {
+        withContext(Dispatchers.IO) {
+            val oldItem = itemDao.getTodoItem(itemId).toTodoItem()
+            val newItem = oldItem.copy(
+                isMade = !oldItem.isMade
             )
-        )
-    )
+            updateItem(oldItemId = itemId, newItem = newItem)
+        }
+    }
 
-    override suspend fun changeMadeStatus(item: TodoItem) {
+    override suspend fun updateItem(oldItemId: String, newItem: TodoItem) {
         withContext(Dispatchers.IO) {
-            val list = _itemsState.value.toMutableList()
-            list[list.indexOf(item)] = item.copy(isMade = !item.isMade)
-            _itemsState.update {
-                list
+            val revision = getLastServerRevision()
+            val itemToAdd = newItem.copy(
+                id = oldItemId
+            )
+            itemDao.updateTodoItem(itemToAdd.toNetworkDto(getDeviceId()))
+            val databaseRevision = getLastDatabaseRevision()
+            refreshDatabaseRevision(databaseRevision + 1)
+            try {
+                val response = todoItemService.updateItemOnServer(
+                    BuildConfig.BEARER_TOKEN,
+                    revision,
+                    oldItemId,
+                    TodoItemRequestDto(itemToAdd.toNetworkDto(getDeviceId()))
+                )
+                refreshServerRevision(response.revision)
+            } catch (_: Exception) {
             }
         }
     }
 
-    override suspend fun updateItemInList(oldItem: TodoItem, newItem: TodoItem) {
+    override suspend fun updateList(itemList: List<TodoItem>) {
         withContext(Dispatchers.IO) {
-            val list = _itemsState.value.toMutableList()
-            list[list.indexOf(oldItem)] = newItem
-            _itemsState.update {
-                list
+            val revision = getLastServerRevision()
+            try {
+                val response = todoItemService.updateListOnServer(
+                    BuildConfig.BEARER_TOKEN,
+                    revision,
+                    TodoListRequestDto(
+                        itemList.map {
+                            it.toNetworkDto(getDeviceId())
+                        }
+                    )
+                )
+                refreshServerRevision(response.revision)
+                refreshDatabaseRevision(getLastServerRevision())
+            } catch (_: Exception) {
             }
         }
     }
 
-    override suspend fun removeTodoItem(item: TodoItem) {
+    override suspend fun removeItem(itemId: String) {
         withContext(Dispatchers.IO) {
-            val list = _itemsState.value.toMutableList()
-            list.remove(item)
-            _itemsState.update {
-                list
+            val revision = getLastServerRevision()
+            val item = itemDao.getTodoItem(itemId)
+            itemDao.deleteTodoItem(item)
+            val databaseRevision = getLastDatabaseRevision()
+            refreshDatabaseRevision(databaseRevision + 1)
+            try {
+                val response = todoItemService.deleteItemFromServer(
+                    BuildConfig.BEARER_TOKEN,
+                    revision,
+                    itemId
+                )
+                refreshServerRevision(response.revision)
+            } catch (_: Exception) {
             }
         }
     }
 
-    override suspend fun addItemToList(item: TodoItem) {
+    override suspend fun addItem(item: TodoItem) {
         withContext(Dispatchers.IO) {
-            _itemsState.update {
-                it + item
+            val revision = getLastServerRevision()
+            val itemDto = item.toNetworkDto(getDeviceId())
+            itemDao.insertTodoItem(itemDto)
+            val databaseRevision = getLastDatabaseRevision()
+            refreshDatabaseRevision(databaseRevision + 1)
+            try {
+                val response = todoItemService.addItemToServer(
+                    BuildConfig.BEARER_TOKEN,
+                    revision,
+                    TodoItemRequestDto(itemDto)
+                )
+                refreshServerRevision(response.revision)
+            } catch (_: Exception) {
             }
         }
     }
 
-    override fun returnTodoItemsList(): StateFlow<List<TodoItem>> {
-        return _itemsState.asStateFlow()
+    private suspend fun getLastServerRevision(): Int {
+        val lastRevision = settingsDataStore.data.map { preferences ->
+            preferences[SERVER_REVISION] ?: 0
+        }.first()
+        return lastRevision
+    }
+
+    private suspend fun getLastDatabaseRevision(): Int {
+        val lastRevision = settingsDataStore.data.map { preferences ->
+            preferences[DATABASE_REVISION] ?: -1
+        }.first()
+        return lastRevision
+    }
+
+    private suspend fun refreshServerRevision(serverRevision: Int) {
+        settingsDataStore.edit { preferences ->
+            preferences[SERVER_REVISION] = serverRevision
+        }
+    }
+
+    private suspend fun refreshDatabaseRevision(databaseRevision: Int) {
+        settingsDataStore.edit { preferences ->
+            preferences[DATABASE_REVISION] = databaseRevision
+        }
+    }
+
+    override suspend fun replaceDatabaseData(items: List<TodoItemDto>) {
+        val daoItems = itemDao.getAllTodoItems().first()
+        for (daoItem in daoItems) {
+            itemDao.deleteTodoItem(daoItem)
+        }
+        for (serverItem in items) {
+            itemDao.insertTodoItem(serverItem)
+        }
+    }
+
+    private suspend fun getDeviceId(): String {
+        val deviceId = settingsDataStore.data.map { preferences ->
+            val uuid = UUID.randomUUID().toString()
+            preferences[DEVICE_ID] ?: uuid.also {
+                settingsDataStore.edit { preference ->
+                    preference[DEVICE_ID] = uuid
+                }
+            }
+        }.first()
+        return deviceId
+    }
+
+    override suspend fun getServerResponse(): ServerResponse? {
+        var response: ServerResponse? = null
+        withContext(Dispatchers.IO) {
+            try {
+                response = todoItemService.getServerResponse(BuildConfig.BEARER_TOKEN)
+                refreshServerRevision(response!!.revision)
+            } catch (_: Exception) {
+            }
+        }
+        return response
+    }
+
+    private suspend fun getNetworkData(): List<TodoItemDto>? {
+        var serverItems: List<TodoItemDto>? = null
+        withContext(Dispatchers.IO) {
+            for (i in 0 until 5) {
+                serverItems = getServerResponse()?.list
+                if (serverItems != null) {
+                    break
+                }
+                sleep(1000)
+            }
+        }
+        return serverItems
+    }
+
+    override suspend fun getItemsFlow(): Pair<Flow<List<TodoItemDto>>, Boolean> {
+        var items: Flow<List<TodoItemDto>>
+        var serverIsAvailable = false
+        withContext(Dispatchers.IO) {
+            val serverItems = getNetworkData()
+            if (serverItems != null) {
+                serverIsAvailable = true
+            }
+            val serverRevision = getLastServerRevision()
+            val databaseRevision = getLastDatabaseRevision()
+            if (databaseRevision < serverRevision && serverItems != null) {
+                replaceDatabaseData(serverItems)
+                refreshDatabaseRevision(serverRevision)
+            } else if (databaseRevision > serverRevision && serverItems != null) {
+                updateList(itemDao.getAllTodoItems().first().map { it.toTodoItem() })
+            }
+            items = itemDao.getAllTodoItems()
+        }
+        return Pair(items, serverIsAvailable)
     }
 }
