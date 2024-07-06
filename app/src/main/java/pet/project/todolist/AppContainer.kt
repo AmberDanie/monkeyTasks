@@ -1,12 +1,16 @@
 package pet.project.todolist
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.work.Constraints
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import pet.project.todolist.data.GetDataFromServerWorker
 import pet.project.todolist.data.ItemsRepository
 import pet.project.todolist.data.TodoDatabase
@@ -58,6 +62,17 @@ class TodoAppContainer(private val context: Context) : AppContainer {
 
     init {
         WorkManager.getInstance(context).enqueue(getDataWork)
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val applicationScope = MainScope()
+        connectivityManager.let {
+            it.registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {
+                override fun onAvailable(network: Network) {
+                    applicationScope.launch {
+                        todoItemsRepository.getItemsFlow()
+                    }
+                }
+            })
+        }
     }
 
     companion object {
