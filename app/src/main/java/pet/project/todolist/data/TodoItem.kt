@@ -1,22 +1,27 @@
 package pet.project.todolist.data
 
-import androidx.annotation.StringRes
-import pet.project.todolist.R
+import com.google.gson.annotations.SerializedName
 import java.time.LocalDate
-import java.util.Date
+import java.time.LocalDateTime
+import java.time.ZoneId
 
-/* part 2 */
-
-enum class TaskImportance(@StringRes val importanceString: Int) {
-    LOW(R.string.Low), DEFAULT(R.string.Default), HIGH(R.string.High)
-}
+/**
+ * TodoItem represents element of todoList
+ * */
 
 data class TodoItem(
+    @SerializedName(value = "id")
     val id: String,
+    @SerializedName(value = "text")
     val text: String,
+    @SerializedName(value = "importance")
     val importance: TaskImportance = TaskImportance.DEFAULT,
+    @SerializedName(value = "deadline")
     val deadline: LocalDate? = null,
+    @SerializedName(value = "done")
     val isMade: Boolean = false,
-    val creationDate: Date,
-    val changeDate: Date? = null
+    @SerializedName(value = "created_at")
+    val creationDate: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")),
+    @SerializedName(value = "changed_at")
+    val changeDate: LocalDateTime = creationDate
 )

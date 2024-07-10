@@ -7,15 +7,18 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -28,11 +31,11 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -41,54 +44,76 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import pet.project.todolist.NavGraph
 import pet.project.todolist.R
+import pet.project.todolist.data.LoadingState
 import pet.project.todolist.data.TaskImportance
 import pet.project.todolist.data.TodoItem
 import pet.project.todolist.ui.theme.AppTheme
 import pet.project.todolist.ui.theme.CustomTheme
-import pet.project.todolist.viewmodels.MainScreenViewModel
+import pet.project.todolist.ui.viewmodels.MainScreenUiState
 import java.time.LocalDate
-import java.util.Date
-
-/* part 2 */
 
 @Composable
 fun MainScreen(
-    mainScreenViewModel: MainScreenViewModel,
-    navController: NavController) {
-    val msState by mainScreenViewModel.msState.collectAsState()
+    msState: MainScreenUiState,
+    showOrHideTasks: () -> Unit,
+    checkBoxClick: (TodoItem) -> Unit,
+    moveToTaskScreen: () -> Unit,
+    updateCurrentItem: (TodoItem) -> Unit,
+    updateList: () -> Unit,
+    hideSnackbar: () -> Unit
+) {
     val items = msState.itemsList
+    val loadingStatus = msState.loadingState
+    var showSnackbar = msState.showSnackbar
     val showCompleted = msState.showCompleted
     Box {
         MainScreenTitle(
             toDoItems = items,
             showOrHideTasks = {
-                mainScreenViewModel.showOrHideCompletedTasks()
+                showOrHideTasks()
             },
             onCheckedChange = {
-                mainScreenViewModel.checkboxClick(it)
+                checkBoxClick(it)
             },
             onInfoClick = {
-                mainScreenViewModel.updateCurrentItem(it)
-                navController.navigate(NavGraph.Task.name)
+                updateCurrentItem(it)
+                moveToTaskScreen()
             },
-            showCompleted = showCompleted
+            showCompleted = showCompleted,
+            loadingState = loadingStatus
         )
         FloatingActionButton(
             onClick = {
-                navController.navigate(NavGraph.Task.name)
+                moveToTaskScreen()
             },
             modifier = Modifier
-                .padding(end = 16.dp, bottom = 24.dp)
+                .padding(end = 16.dp, bottom = 64.dp)
                 .align(Alignment.BottomEnd),
             shape = CircleShape,
             containerColor = CustomTheme.colors.blue,
             contentColor = CustomTheme.colors.white
         ) {
-           Icon(Icons.Filled.Add, "Action button")
+            Icon(Icons.Filled.Add, "Action button")
+        }
+        if (loadingStatus == LoadingState.ERROR && showSnackbar) {
+            Snackbar(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 48.dp),
+                dismissAction = {
+                    TextButton(onClick = { hideSnackbar() }) {
+                        Text(text = "ЗАКРЫТЬ", style = CustomTheme.typography.button)
+                    }
+                },
+                action = {
+                    TextButton(onClick = { updateList() }) {
+                        Text(text = "ОБНОВИТЬ", style = CustomTheme.typography.button)
+                    }
+                }
+            ) {
+                Text("Ошибка сети! Данные неактуальны")
+            }
         }
     }
 }
@@ -99,7 +124,9 @@ private fun MainScreenTitle(
     showOrHideTasks: () -> Unit,
     onCheckedChange: (TodoItem) -> Unit,
     onInfoClick: (TodoItem) -> Unit,
-    showCompleted: Boolean) {
+    showCompleted: Boolean,
+    loadingState: LoadingState
+) {
     val tasksDone = toDoItems.count { it.isMade }
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -120,7 +147,8 @@ private fun MainScreenTitle(
             Text(
                 text = stringResource(
                     R.string.tasks_done,
-                    tasksDone, toDoItems.size
+                    tasksDone,
+                    toDoItems.size
                 ),
                 style = CustomTheme.typography.body,
                 color = CustomTheme.colors.labelSecondary
@@ -129,8 +157,11 @@ private fun MainScreenTitle(
                 showOrHideTasks()
             }) {
                 Icon(
-                    painter = if (!showCompleted) painterResource(R.drawable.baseline_visibility_24)
-                    else painterResource(R.drawable.baseline_visibility_off_24),
+                    painter = if (!showCompleted) {
+                        painterResource(R.drawable.baseline_visibility_24)
+                    } else {
+                        painterResource(R.drawable.baseline_visibility_off_24)
+                    },
                     contentDescription = "Visibility on",
                     tint = CustomTheme.colors.blue
                 )
@@ -154,22 +185,58 @@ private fun MainScreenTitle(
                     )
                 )
             ) {
-                items(items = toDoItems, key = {it.id}) {
-                    AnimatedVisibility(
-                        visible = showCompleted || !it.isMade,
-                        enter = expandVertically(animationSpec = tween(200)),
-                        exit = shrinkVertically(animationSpec = tween(200))
-                    ) {
-                        ListItem(item = it,
-                            onCheckedChange = onCheckedChange,
-                            onInfoClick = onInfoClick)
+                when (loadingState) {
+                    LoadingState.LOADING -> item {
+                        LoadingLayout()
+                    }
+
+                    else -> {
+                        items(items = toDoItems, key = { it.id }) {
+                            AnimatedListItem(showCompleted, it, onCheckedChange, onInfoClick)
+                        }
                     }
                 }
                 item(1) {
-                    Spacer(Modifier.height(64.dp))
+                    Spacer(Modifier.height(100.dp))
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ColumnScope.AnimatedListItem(
+    showCompleted: Boolean,
+    item: TodoItem,
+    onCheckedChange: (TodoItem) -> Unit,
+    onInfoClick: (TodoItem) -> Unit
+) {
+    AnimatedVisibility(
+        visible = showCompleted || !item.isMade,
+        enter = expandVertically(animationSpec = tween(200)),
+        exit = shrinkVertically(animationSpec = tween(200))
+    ) {
+        ListItem(
+            item = item,
+            onCheckedChange = onCheckedChange,
+            onInfoClick = onInfoClick
+        )
+    }
+}
+
+@Composable
+private fun LoadingLayout() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(start = 12.dp)
+    ) {
+        Image(
+            modifier = Modifier.size(400.dp),
+            painter = painterResource(R.drawable.loading_img),
+            alignment = Alignment.Center,
+            contentDescription = null
+        )
     }
 }
 
@@ -178,9 +245,11 @@ fun ListItem(
     item: TodoItem,
     onCheckedChange: (TodoItem) -> Unit,
     onInfoClick: (TodoItem) -> Unit,
-    modifier: Modifier = Modifier) {
+    modifier: Modifier = Modifier
+) {
     Row {
-        Checkbox(checked = item.isMade,
+        Checkbox(
+            checked = item.isMade,
             onCheckedChange = {
                 onCheckedChange(item)
             },
@@ -196,15 +265,21 @@ fun ListItem(
         )
         when (item.importance) {
             TaskImportance.LOW ->
-                Icon(painter = painterResource(id = R.drawable.baseline_arrow_downward_24),
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_arrow_downward_24),
                     contentDescription = null,
                     tint = if (!item.isMade) CustomTheme.colors.gray else CustomTheme.colors.green,
-                    modifier = modifier.padding(top = 12.dp))
+                    modifier = modifier.padding(top = 12.dp)
+                )
+
             TaskImportance.HIGH ->
-                Icon(painter = painterResource(id = R.drawable.baseline_priority_high_24),
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_priority_high_24),
                     contentDescription = null,
                     tint = if (!item.isMade) CustomTheme.colors.red else CustomTheme.colors.green,
-                    modifier = modifier.padding(top = 12.dp))
+                    modifier = modifier.padding(top = 12.dp)
+                )
+
             else -> {}
         }
         Column(
@@ -213,28 +288,39 @@ fun ListItem(
             Text(
                 item.text,
                 style = CustomTheme.typography.body,
-                textDecoration = if (item.isMade) TextDecoration.LineThrough
-                                             else TextDecoration.None,
+                textDecoration = if (item.isMade) {
+                    TextDecoration.LineThrough
+                } else {
+                    TextDecoration.None
+                },
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
                 modifier = modifier.padding(top = 12.dp)
             )
             if (item.deadline != null) {
-                Text(item.deadline.toString(),
+                Text(
+                    item.deadline.toString(),
                     style = CustomTheme.typography.subhead,
-                    textDecoration = if (item.isMade) TextDecoration.LineThrough
-                                                 else TextDecoration.None,
+                    textDecoration = if (item.isMade) {
+                        TextDecoration.LineThrough
+                    } else {
+                        TextDecoration.None
+                    },
                     color = CustomTheme.colors.labelTertiary,
-                    modifier = modifier)
+                    modifier = modifier
+                )
             }
         }
         IconButton(onClick = {
             onInfoClick(item)
         }) {
-            Icon(painter = painterResource(
-                id = R.drawable.baseline_info_outline_24),
+            Icon(
+                painter = painterResource(
+                    id = R.drawable.baseline_info_outline_24
+                ),
                 contentDescription = null,
-                modifier = modifier)
+                modifier = modifier
+            )
         }
     }
 }
@@ -247,7 +333,6 @@ private fun MainScreenLightPreview() {
             modifier = Modifier.fillMaxSize(),
             color = CustomTheme.colors.backPrimary
         ) {
-            MainScreen(MainScreenViewModel(), rememberNavController())
         }
     }
 }
@@ -261,8 +346,7 @@ private fun TodoItemLightPreview() {
             text = "Сделать превью для итема",
             importance = TaskImportance.HIGH,
             deadline = LocalDate.parse("2024-06-29"),
-            isMade = true,
-            creationDate = Date()
+            isMade = true
         )
         ElevatedCard(
             colors = CardDefaults.elevatedCardColors(
@@ -273,9 +357,11 @@ private fun TodoItemLightPreview() {
                 2.dp
             )
         ) {
-            ListItem(item = item,
+            ListItem(
+                item = item,
                 onCheckedChange = {},
-                onInfoClick = {})
+                onInfoClick = {}
+            )
         }
     }
 }
@@ -288,7 +374,6 @@ private fun MainScreenDarkPreview() {
             modifier = Modifier.fillMaxSize(),
             color = CustomTheme.colors.backPrimary
         ) {
-            MainScreen(MainScreenViewModel(), rememberNavController())
         }
     }
 }
@@ -302,8 +387,7 @@ private fun TodoItemDarkPreview() {
             text = "Сделать превью для итема",
             importance = TaskImportance.HIGH,
             deadline = LocalDate.parse("2024-06-29"),
-            isMade = true,
-            creationDate = Date()
+            isMade = true
         )
         ElevatedCard(
             colors = CardDefaults.elevatedCardColors(
@@ -315,9 +399,11 @@ private fun TodoItemDarkPreview() {
             ),
             modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 16.dp)
         ) {
-            ListItem(item = item,
+            ListItem(
+                item = item,
                 onCheckedChange = {},
-                onInfoClick = {})
+                onInfoClick = {}
+            )
         }
     }
 }

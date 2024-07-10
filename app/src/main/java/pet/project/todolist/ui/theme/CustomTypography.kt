@@ -5,7 +5,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-/* part 2 */
+/**
+ * CustomTypography handles all CustomTheme text styles
+ * */
 
 data class CustomTypography(
     val largeTitle: TextStyle = TextStyle(
