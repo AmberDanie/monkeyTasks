@@ -1,27 +1,27 @@
 package pet.project.todolist.ui.viewmodels
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import pet.project.todolist.TodoListApplication
-import pet.project.todolist.data.ItemsRepository
-import pet.project.todolist.data.LoadingState
-import pet.project.todolist.data.TodoItem
-
+import pet.project.todolist.data.repository.ItemsRepository
+import pet.project.todolist.domain.LoadingState
 
 /**
  *  MainScreenViewModel control flow between MainScreen and Repository class
  * */
 
-class MainScreenViewModel(private val repository: ItemsRepository<TodoItem>) : ViewModel() {
+class MainScreenViewModel @AssistedInject constructor(
+    private val repository: ItemsRepository,
+    @Assisted savedStateHandle: SavedStateHandle
+) : ViewModel() {
 
     private val _msState = MutableStateFlow(MainScreenUiState())
     val msState = _msState.asStateFlow()
@@ -79,16 +79,8 @@ class MainScreenViewModel(private val repository: ItemsRepository<TodoItem>) : V
         }
     }
 
-    companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = (
-                    this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]
-                        as TodoListApplication
-                    )
-                val todoItemsRepository = application.container.todoItemsRepository
-                MainScreenViewModel(repository = todoItemsRepository)
-            }
-        }
+    @dagger.assisted.AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): MainScreenViewModel
     }
 }

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10"
     id("com.google.devtools.ksp") version "1.9.0-1.0.13"
+    id("kotlin-kapt")
 }
 
 android {
@@ -60,6 +61,9 @@ android {
 }
 
 dependencies {
+    implementation(libs.dagger)
+    implementation(libs.androidx.tools.core)
+    kapt(libs.dagger.compiler)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)

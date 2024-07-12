@@ -3,8 +3,8 @@ package pet.project.todolist.network
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
-import pet.project.todolist.data.TaskImportance
-import pet.project.todolist.data.TodoItem
+import pet.project.todolist.domain.TaskImportance
+import pet.project.todolist.domain.TodoItem
 import pet.project.todolist.utils.toLocalDate
 import pet.project.todolist.utils.toLocalDateTime
 import pet.project.todolist.utils.toTimestamp
@@ -34,11 +34,13 @@ data class TodoItemDto(
     val changedAt: Long,
     @SerializedName(value = "last_updated_by")
     val updateBy: String,
+    @SerializedName(value = "files")
+    val files: List<String>?
 ) {
     fun toTodoItem() =
         TodoItem(
             id = id,
-            text = text,
+            taskText = text,
             importance = importance.dtoToImportance()!!,
             deadline = deadline?.toLocalDate(),
             isMade = done,
@@ -50,7 +52,7 @@ data class TodoItemDto(
 fun TodoItem.toNetworkDto(deviceId: String) =
     TodoItemDto(
         id = id,
-        text = text,
+        text = taskText,
         importance = importance.toNetworkDto(),
         deadline = deadline?.toTimestamp(),
         done = isMade,
@@ -58,6 +60,7 @@ fun TodoItem.toNetworkDto(deviceId: String) =
         createdAt = creationDate.toTimestamp(),
         changedAt = changeDate.toTimestamp(),
         updateBy = deviceId,
+        files = null
     )
 
 private fun TaskImportance.toNetworkDto() = when (this) {

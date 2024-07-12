@@ -51,8 +51,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import pet.project.todolist.R
-import pet.project.todolist.data.TaskImportance
-import pet.project.todolist.data.TodoItem
+import pet.project.todolist.domain.TaskImportance
+import pet.project.todolist.domain.TodoItem
 import pet.project.todolist.ui.theme.AppTheme
 import pet.project.todolist.ui.theme.CustomTheme
 import pet.project.todolist.ui.viewmodels.TaskScreenViewModel
@@ -78,8 +78,8 @@ fun TaskScreen(
     var menuExpanded by remember { mutableStateOf(false) }
     var switchState: Boolean by remember { mutableStateOf(false) }
 
-    var inputText by remember { mutableStateOf(item?.text ?: "") }
-    var importanceStatus by remember {
+    var inputText by remember(item?.taskText) { mutableStateOf(item?.taskText ?: "") }
+    var importanceStatus by remember(item?.importance?.importanceString) {
         mutableIntStateOf(
             item?.importance?.importanceString ?: R.string.Default
         )
@@ -141,7 +141,7 @@ fun TaskScreen(
                     taskScreenViewModel.addTodoItem(
                         TodoItem(
                             id = UUID.randomUUID().toString(),
-                            text = inputText,
+                            taskText = inputText,
                             importance = importance,
                             deadline = deadline
                         )
@@ -150,7 +150,7 @@ fun TaskScreen(
                     taskScreenViewModel.updateItemInList(
                         item.id,
                         item.copy(
-                            text = inputText,
+                            taskText = inputText,
                             importance = importance,
                             deadline = deadline
                         )

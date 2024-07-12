@@ -1,4 +1,4 @@
-package pet.project.todolist.data
+package pet.project.todolist.network
 
 import android.content.Context
 import androidx.work.CoroutineWorker
@@ -6,6 +6,7 @@ import androidx.work.WorkerParameters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import pet.project.todolist.data.repository.TodoItemsRepository
 
 /**
  * GetDataFromServerWorker creates worker for background tasks management

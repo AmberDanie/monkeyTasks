@@ -1,4 +1,4 @@
-package pet.project.todolist.data
+package pet.project.todolist.data.datastore
 
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey

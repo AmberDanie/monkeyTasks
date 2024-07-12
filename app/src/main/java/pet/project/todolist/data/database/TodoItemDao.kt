@@ -1,4 +1,4 @@
-package pet.project.todolist.data
+package pet.project.todolist.data.database
 
 import androidx.room.Dao
 import androidx.room.Delete

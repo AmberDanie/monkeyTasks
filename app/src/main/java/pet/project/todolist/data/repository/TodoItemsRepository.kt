@@ -1,4 +1,4 @@
-package pet.project.todolist.data
+package pet.project.todolist.data.repository
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -9,9 +9,12 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import pet.project.todolist.BuildConfig
-import pet.project.todolist.data.AppPreferences.DATABASE_REVISION
-import pet.project.todolist.data.AppPreferences.DEVICE_ID
-import pet.project.todolist.data.AppPreferences.SERVER_REVISION
+import pet.project.todolist.data.datastore.AppPreferences.DATABASE_REVISION
+import pet.project.todolist.data.datastore.AppPreferences.DEVICE_ID
+import pet.project.todolist.data.datastore.AppPreferences.SERVER_REVISION
+import pet.project.todolist.domain.ServerResponse
+import pet.project.todolist.domain.TodoItem
+import pet.project.todolist.data.database.TodoItemDao
 import pet.project.todolist.network.TodoItemDto
 import pet.project.todolist.network.TodoItemRequestDto
 import pet.project.todolist.network.TodoItemService
@@ -19,16 +22,17 @@ import pet.project.todolist.network.TodoListRequestDto
 import pet.project.todolist.network.toNetworkDto
 import java.lang.Thread.sleep
 import java.util.UUID
+import javax.inject.Inject
 
 /**
  * TodoItemsRepository handle data from sources
  * */
 
-class TodoItemsRepository(
+class TodoItemsRepository @Inject constructor(
     private val todoItemService: TodoItemService,
     private val settingsDataStore: DataStore<Preferences>,
     private val itemDao: TodoItemDao
-) : ItemsRepository<TodoItem> {
+) : ItemsRepository {
     override suspend fun changeMadeStatus(itemId: String) {
         withContext(Dispatchers.IO) {
             val oldItem = itemDao.getTodoItem(itemId).toTodoItem()
@@ -36,6 +40,12 @@ class TodoItemsRepository(
                 isMade = !oldItem.isMade
             )
             updateItem(oldItemId = itemId, newItem = newItem)
+        }
+    }
+
+    override suspend fun getItemById(itemId: String): TodoItemDto {
+        return withContext(Dispatchers.IO) {
+            itemDao.getTodoItem(itemId)
         }
     }
 
@@ -145,7 +155,7 @@ class TodoItemsRepository(
         }
     }
 
-    override suspend fun replaceDatabaseData(items: List<TodoItemDto>) {
+    private suspend fun replaceDatabaseData(items: List<TodoItemDto>) {
         val daoItems = itemDao.getAllTodoItems().first()
         for (daoItem in daoItems) {
             itemDao.deleteTodoItem(daoItem)
@@ -167,7 +177,7 @@ class TodoItemsRepository(
         return deviceId
     }
 
-    override suspend fun getServerResponse(): ServerResponse? {
+    private suspend fun getServerResponse(): ServerResponse? {
         var response: ServerResponse? = null
         withContext(Dispatchers.IO) {
             try {

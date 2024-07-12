@@ -1,4 +1,4 @@
-package pet.project.todolist.data
+package pet.project.todolist.domain
 
 import com.google.gson.annotations.SerializedName
 import java.time.LocalDate
@@ -13,7 +13,7 @@ data class TodoItem(
     @SerializedName(value = "id")
     val id: String,
     @SerializedName(value = "text")
-    val text: String,
+    val taskText: String,
     @SerializedName(value = "importance")
     val importance: TaskImportance = TaskImportance.DEFAULT,
     @SerializedName(value = "deadline")

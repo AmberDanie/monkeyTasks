@@ -1,9 +1,11 @@
-package pet.project.todolist.data
+package pet.project.todolist.data.database
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import pet.project.todolist.utils.TodoDatabaseConverters
 import pet.project.todolist.network.TodoItemDto
 
 /**
@@ -14,9 +16,10 @@ import pet.project.todolist.network.TodoItemDto
     entities = [
         TodoItemDto::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = true
 )
+@TypeConverters(TodoDatabaseConverters::class)
 abstract class TodoDatabase : RoomDatabase() {
     abstract fun todoItemDao(): TodoItemDao
 

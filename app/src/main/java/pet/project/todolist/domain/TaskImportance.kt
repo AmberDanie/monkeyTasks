@@ -1,4 +1,4 @@
-package pet.project.todolist.data
+package pet.project.todolist.domain
 
 import androidx.annotation.StringRes
 import pet.project.todolist.R

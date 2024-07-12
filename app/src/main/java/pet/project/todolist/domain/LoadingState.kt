@@ -1,4 +1,4 @@
-package pet.project.todolist.data
+package pet.project.todolist.domain
 
 /**
  * LoadingState represents possible states of Loading val
