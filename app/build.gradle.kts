@@ -9,20 +9,17 @@ plugins {
 android {
     namespace = "pet.project.todolist"
     compileSdk = 34
-
     defaultConfig {
         applicationId = "pet.project.todolist"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
     }
-
     buildTypes {
         release {
             isMinifyEnabled = false
