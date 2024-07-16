@@ -25,7 +25,3 @@ dependencies {
     implementation(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
     implementation(kotlin("stdlib-jdk8"))
 }
-
-kotlin {
-    jvmToolchain(17)
-}

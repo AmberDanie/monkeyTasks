@@ -4,7 +4,7 @@ converterGson = "2.2.0"
 dagger = "2.49"
 daggerCompiler = "2.48"
 datastore = "1.1.1"
-kotlin = "1.9.0"
+kotlin = "2.0.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 coroutines = "1.7.3"
@@ -71,4 +71,5 @@ androidx-tools-core = { group = "androidx.privacysandbox.tools", name = "tools-c
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 

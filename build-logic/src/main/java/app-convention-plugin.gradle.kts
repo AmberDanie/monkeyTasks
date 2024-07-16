@@ -1,9 +1,5 @@
-import com.android.build.gradle.LibraryExtension
+import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
 import org.gradle.accessors.dm.LibrariesForLibs
-import org.gradle.api.JavaVersion
-import org.gradle.api.plugins.ExtensionAware
-import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.version
 
 plugins {
     id("com.android.application")
@@ -12,7 +8,7 @@ plugins {
     id("kotlin-kapt")
 }
 
-configure<LibraryExtension> {
+configure<BaseAppModuleExtension> {
     compileSdk = 34
 
     defaultConfig {
@@ -45,6 +41,9 @@ configure<LibraryExtension> {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
     buildFeatures {
         compose = true
         buildConfig = true
@@ -60,33 +59,36 @@ configure<LibraryExtension> {
 }
 
 dependencies {
-    implementation("com.google.dagger:dagger")
-    implementation("androidx.privacysandbox.tools:tools-core:1.0.0-alpha09")
-    kapt("com.google.dagger:dagger-compiler")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx")
-    implementation("androidx.room:room-runtime")
-    ksp("androidx.room:room-compiler")
-    implementation("androidx.room:room-ktx")
-    implementation("androidx.datastore:datastore-preferences")
-    implementation("androidx.datastore:datastore-preferences-core")
-    implementation("androidx.datastore:datastore")
-    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter")
-    implementation("com.squareup.retrofit2:converter-gson")
-    implementation("com.squareup.retrofit2:retrofit")
-    implementation("androidx.core:core-ktx")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx")
-    implementation("androidx.activity:activity-compose")
-    implementation(platform("androidx.compose:compose-bom"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics" )
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3-android")
-    implementation("androidx.navigation:navigation-compose")
-    testImplementation("junit:junit")
-    androidTestImplementation("androidx.test.ext:junit")
-    androidTestImplementation("androidx.test.espresso:espresso-core")
-    androidTestImplementation(platform("androidx.compose:compose-bom"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    implementation(libs.dagger)
+    implementation(libs.androidx.tools.core)
+    kapt(libs.dagger.compiler)
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.datastore.preferences.core)
+    implementation(libs.androidx.datastore)
+    implementation(libs.retrofit2.kotlinx.serialization.converter)
+    implementation(libs.converter.gson)
+    implementation(libs.retrofit)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3.android)
+    implementation(libs.androidx.navigation.compose)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }
+
+internal val Project.libs: LibrariesForLibs
+    get() = (this as ExtensionAware).extensions.getByName("libs") as LibrariesForLibs
