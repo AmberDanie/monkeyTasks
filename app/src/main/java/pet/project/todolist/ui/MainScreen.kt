@@ -45,9 +45,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pet.project.todolist.R
-import pet.project.todolist.data.LoadingState
-import pet.project.todolist.data.TaskImportance
-import pet.project.todolist.data.TodoItem
+import pet.project.todolist.domain.LoadingState
+import pet.project.todolist.domain.TaskImportance
+import pet.project.todolist.domain.TodoItem
 import pet.project.todolist.ui.theme.AppTheme
 import pet.project.todolist.ui.theme.CustomTheme
 import pet.project.todolist.ui.viewmodels.MainScreenUiState
@@ -58,8 +58,7 @@ fun MainScreen(
     msState: MainScreenUiState,
     showOrHideTasks: () -> Unit,
     checkBoxClick: (TodoItem) -> Unit,
-    moveToTaskScreen: () -> Unit,
-    updateCurrentItem: (TodoItem) -> Unit,
+    moveToTaskScreen: (String) -> Unit,
     updateList: () -> Unit,
     hideSnackbar: () -> Unit
 ) {
@@ -77,15 +76,14 @@ fun MainScreen(
                 checkBoxClick(it)
             },
             onInfoClick = {
-                updateCurrentItem(it)
-                moveToTaskScreen()
+                moveToTaskScreen(it.id)
             },
             showCompleted = showCompleted,
             loadingState = loadingStatus
         )
         FloatingActionButton(
             onClick = {
-                moveToTaskScreen()
+                moveToTaskScreen("default")
             },
             modifier = Modifier
                 .padding(end = 16.dp, bottom = 64.dp)
@@ -286,7 +284,7 @@ fun ListItem(
             modifier = Modifier.weight(0.66f)
         ) {
             Text(
-                item.text,
+                item.taskText,
                 style = CustomTheme.typography.body,
                 textDecoration = if (item.isMade) {
                     TextDecoration.LineThrough
@@ -343,7 +341,7 @@ private fun TodoItemLightPreview() {
     AppTheme(darkTheme = false) {
         val item = TodoItem(
             id = "0",
-            text = "Сделать превью для итема",
+            taskText = "Сделать превью для итема",
             importance = TaskImportance.HIGH,
             deadline = LocalDate.parse("2024-06-29"),
             isMade = true
@@ -384,7 +382,7 @@ private fun TodoItemDarkPreview() {
     AppTheme(darkTheme = true) {
         val item = TodoItem(
             id = "0",
-            text = "Сделать превью для итема",
+            taskText = "Сделать превью для итема",
             importance = TaskImportance.HIGH,
             deadline = LocalDate.parse("2024-06-29"),
             isMade = true

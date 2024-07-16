@@ -1,4 +1,4 @@
-package pet.project.todolist.data
+package pet.project.todolist.domain
 
 import com.google.gson.annotations.SerializedName
 import pet.project.todolist.network.TodoItemDto

@@ -3,25 +3,23 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10"
     id("com.google.devtools.ksp") version "1.9.0-1.0.13"
+    id("kotlin-kapt")
 }
 
 android {
     namespace = "pet.project.todolist"
     compileSdk = 34
-
     defaultConfig {
         applicationId = "pet.project.todolist"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
     }
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -60,6 +58,9 @@ android {
 }
 
 dependencies {
+    implementation(libs.dagger)
+    implementation(libs.androidx.tools.core)
+    kapt(libs.dagger.compiler)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)

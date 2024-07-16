@@ -1,7 +1,7 @@
 package pet.project.todolist.ui.viewmodels
 
-import pet.project.todolist.data.LoadingState
-import pet.project.todolist.data.TodoItem
+import pet.project.todolist.domain.LoadingState
+import pet.project.todolist.domain.TodoItem
 
 /**
  * MainScreenUiState handle MainScreen UI state

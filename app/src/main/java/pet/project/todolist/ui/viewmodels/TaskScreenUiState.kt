@@ -1,6 +1,6 @@
 package pet.project.todolist.ui.viewmodels
 
-import pet.project.todolist.data.TodoItem
+import pet.project.todolist.domain.TodoItem
 
 /**
  * TaskScreenUiState handle TaskScreen UI state
