@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import dagger.Module
 import dagger.Provides
-import pet.project.todolist.data.repository.ItemsRepository
+import pet.project.todolist.data.repositories.todoItemsRepository.ItemsRepository
 import pet.project.todolist.utils.AppScope
 import pet.project.todolist.network.TodoConnectivityCallback
 

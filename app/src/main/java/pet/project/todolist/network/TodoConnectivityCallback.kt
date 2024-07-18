@@ -4,7 +4,7 @@ import android.net.ConnectivityManager
 import android.net.Network
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-import pet.project.todolist.data.repository.ItemsRepository
+import pet.project.todolist.data.repositories.todoItemsRepository.ItemsRepository
 import javax.inject.Inject
 
 class TodoConnectivityCallback @Inject constructor(

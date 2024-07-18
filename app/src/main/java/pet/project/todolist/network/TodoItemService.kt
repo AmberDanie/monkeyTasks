@@ -1,6 +1,6 @@
 package pet.project.todolist.network
 
-import pet.project.todolist.domain.ServerResponse
+import pet.project.todolist.data.ServerResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET

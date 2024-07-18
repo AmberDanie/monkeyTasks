@@ -3,8 +3,8 @@ package pet.project.todolist.network
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
-import pet.project.todolist.domain.TaskImportance
-import pet.project.todolist.domain.TodoItem
+import pet.project.core.domain.TaskImportance
+import pet.project.todolist.data.TodoItem
 import pet.project.todolist.utils.toLocalDate
 import pet.project.todolist.utils.toLocalDateTime
 import pet.project.todolist.utils.toTimestamp
