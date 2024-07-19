@@ -7,8 +7,8 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import dagger.Module
 import dagger.Provides
-import pet.project.todolist.network.GetDataFromServerWorker
-import pet.project.todolist.utils.AppScope
+import pet.project.management.GetDataFromServerWorker
+import pet.project.utils.AppScope
 import java.util.concurrent.TimeUnit
 
 @Module

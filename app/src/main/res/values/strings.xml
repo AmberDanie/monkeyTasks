@@ -15,4 +15,5 @@
     <string name="Auto_theme">Системная тема</string>
     <string name="title_core">Core</string>
     <string name="title_domain">Domain</string>
+    <string name="title_data">Data</string>
 </resources>

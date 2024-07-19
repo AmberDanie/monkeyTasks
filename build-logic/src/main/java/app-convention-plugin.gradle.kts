@@ -59,8 +59,7 @@ configure<BaseAppModuleExtension> {
 }
 
 dependencies {
-    implementation(project(":core:theme"))
-    implementation(project(":core:domain"))
+    implementation(project(":domain"))
 
     implementation(libs.dagger)
     implementation(libs.androidx.tools.core)

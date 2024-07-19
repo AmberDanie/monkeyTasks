@@ -29,6 +29,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.converter.gson)
     implementation(libs.androidx.runtime)
     implementation(libs.androidx.core.ktx)
     testImplementation(libs.junit)

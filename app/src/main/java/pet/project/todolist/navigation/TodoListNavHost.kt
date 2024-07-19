@@ -11,19 +11,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import pet.project.todolist.ui.screens.MainScreen
-import pet.project.todolist.ui.screens.SettingsScreen
-import pet.project.todolist.ui.screens.TaskScreen
-import pet.project.todolist.ui.viewmodels.mainScreen.MainScreenViewModel
-import pet.project.todolist.ui.viewmodels.settingsScreen.SettingsScreenViewModel
-import pet.project.todolist.ui.viewmodels.taskScreen.TaskScreenViewModel
+import pet.project.settings.SettingsScreen
+import pet.project.task.TaskScreen
+import pet.project.settings.SettingsScreenViewModel
+import pet.project.task.TaskScreenViewModel
 
 @Composable
 fun TodoListNavHost(
     navController: NavHostController,
-    mainScreenViewModelFactory: MainScreenViewModel.Factory,
-    taskScreenViewModelFactory: TaskScreenViewModel.Factory,
-    settingsScreenViewModel: SettingsScreenViewModel
+    mainScreenViewModelFactory: pet.project.main.MainScreenViewModel.Factory,
+    taskScreenViewModelFactory: pet.project.task.TaskScreenViewModel.Factory,
+    settingsScreenViewModel: pet.project.settings.SettingsScreenViewModel
 ) {
     NavHost(
         navController = navController,
@@ -44,7 +42,7 @@ fun TodoListNavHost(
                 mainScreenViewModelFactory.create(backStackEntry.savedStateHandle)
             }
             val msState by mainScreenViewModel.msState.collectAsState()
-            MainScreen(
+            pet.project.main.MainScreen(
                 msState = msState,
                 showOrHideTasks = { mainScreenViewModel.showOrHideCompletedTasks() },
                 checkBoxClick = { mainScreenViewModel.changeMadeStatus(it.id) },
@@ -70,7 +68,7 @@ fun TodoListNavHost(
                     }
                 )
             }
-            TaskScreen(
+            pet.project.task.TaskScreen(
                 taskScreenViewModel,
                 moveBack = { navController.popBackStack() },
                 modifier = Modifier.fillMaxSize()
@@ -84,7 +82,7 @@ fun TodoListNavHost(
             popExitTransition = { scaleOutOfContainer() }
         ) {
             val ssState by settingsScreenViewModel.ssState.collectAsState()
-            SettingsScreen(
+            pet.project.settings.SettingsScreen(
                 settingsState = ssState,
                 changeTheme = { settingsScreenViewModel.updateTheme(it) },
                 moveBack = { navController.popBackStack() }

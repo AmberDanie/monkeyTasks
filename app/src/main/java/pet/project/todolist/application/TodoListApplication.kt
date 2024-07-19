@@ -4,8 +4,8 @@ import android.app.Application
 import android.net.ConnectivityManager
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
+import pet.project.management.TodoConnectivityCallback
 import pet.project.todolist.application.di.DaggerAppComponent
-import pet.project.todolist.network.TodoConnectivityCallback
 import javax.inject.Inject
 
 /** TodoListApplication responsible for creating application */

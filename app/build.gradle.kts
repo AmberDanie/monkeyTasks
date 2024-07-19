@@ -12,4 +12,15 @@ android {
         versionName = "1.0"
     }
 }
+dependencies {
+    implementation(project(":core:network"))
+    implementation(project(":core:data"))
+    implementation(project(":core:utils"))
+    implementation(project(":core:theme"))
+    implementation(project(":core:management"))
+    implementation(project(":core:database"))
+    implementation(project(":feature:mainScreen"))
+    implementation(project(":feature:task"))
+    implementation(project(":feature:settings"))
+}
 

@@ -15,8 +15,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import pet.project.core.theme.AppTheme
-import pet.project.core.theme.CustomTheme
+import pet.project.theme.AppTheme
+import pet.project.theme.CustomTheme
 import pet.project.todolist.activities.main.di.ActivityComponent
 import pet.project.todolist.application.TodoListApplication
 import pet.project.todolist.navigation.TodoListNavHost
