@@ -13,6 +13,7 @@ import com.yandex.div.rive.OkHttpDivRiveNetworkDelegate
 import com.yandex.div.rive.RiveCustomViewAdapter
 import okhttp3.OkHttpClient
 import pet.project.info.databinding.DivFragmentBinding
+import pet.project.theme.CustomTheme
 
 @Composable
 fun InfoScreen(
@@ -21,11 +22,16 @@ fun InfoScreen(
     val context = LocalContext.current
     val themeContext = ContextThemeWrapper(context, R.style.Theme_TodoList)
     val lifeCycleOwner = LocalLifecycleOwner.current
+    val isLight = CustomTheme.colors.isLight
 
     AndroidViewBinding(DivFragmentBinding::inflate) {
         val assetReader = AssetReader(context)
 
-        val divJson = assetReader.read("info.json")
+        val divJson = if (isLight) {
+            assetReader.read("info-light.json")
+        } else {
+            assetReader.read("info-dark.json")
+        }
         val templatesJson = divJson.optJSONObject("templates")
         val cardJson = divJson.getJSONObject("card")
 
