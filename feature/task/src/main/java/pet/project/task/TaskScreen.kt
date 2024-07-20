@@ -228,28 +228,44 @@ fun TaskScreen(
             Spacer(Modifier.height(16.dp))
         }
         AnimatedVisibility(visible = menuExpanded) {
-            ModalBottomSheet(onDismissRequest = { menuExpanded = false }) {
+            ModalBottomSheet(onDismissRequest = { menuExpanded = false },
+                containerColor = CustomTheme.colors.backSecondary) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    TextButton(onClick = {
-                        importanceStatus = R.string.Default
-                        menuExpanded = false },
-                        modifier = Modifier.fillMaxWidth()) {
-                        Text(text = stringResource(id = R.string.Default), textAlign = TextAlign.Center)
+                    TextButton(
+                        onClick = {
+                            importanceStatus = R.string.Default
+                            menuExpanded = false
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.Default),
+                            textAlign = TextAlign.Center
+                        )
                     }
-                    TextButton(onClick = {
-                        importanceStatus = R.string.Low
-                        menuExpanded = false },
-                        modifier = Modifier.fillMaxWidth()) {
+                    TextButton(
+                        onClick = {
+                            importanceStatus = R.string.Low
+                            menuExpanded = false
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         Text(text = stringResource(id = R.string.Low))
                     }
-                    TextButton(onClick = {
-                        importanceStatus = R.string.High
-                        menuExpanded = false },
-                        modifier = Modifier.fillMaxWidth()) {
-                        Text(text = stringResource(id = R.string.High), color = CustomTheme.colors.red)
+                    TextButton(
+                        onClick = {
+                            importanceStatus = R.string.High
+                            menuExpanded = false
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.High),
+                            color = CustomTheme.colors.red
+                        )
                     }
                 }
             }

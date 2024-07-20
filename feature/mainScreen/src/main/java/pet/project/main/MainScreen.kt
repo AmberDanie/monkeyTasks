@@ -178,8 +178,10 @@ private fun MainScreenTitle(
                 )
             }
             IconButton(onClick = { onSettingsClick() }) {
-                Icon(Icons.Filled.Settings, contentDescription = "settings",
-                    tint = CustomTheme.colors.blue)
+                Icon(
+                    Icons.Filled.Settings, contentDescription = "settings",
+                    tint = CustomTheme.colors.blue
+                )
             }
             IconButton(onClick = { onInfoScreenClick() }) {
                 Icon(Icons.Filled.Info, contentDescription = "info", tint = CustomTheme.colors.blue)
