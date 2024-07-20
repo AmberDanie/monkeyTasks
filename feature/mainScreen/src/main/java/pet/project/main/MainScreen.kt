@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -61,6 +62,7 @@ fun MainScreen(
     checkBoxClick: (TodoItem) -> Unit,
     moveToTaskScreen: (String) -> Unit,
     moveToSettingsScreen: () -> Unit,
+    moveToInfoScreen: () -> Unit,
     updateList: () -> Unit,
     hideSnackbar: () -> Unit,
     modifier: Modifier = Modifier
@@ -77,6 +79,9 @@ fun MainScreen(
             },
             onCheckedChange = {
                 checkBoxClick(it)
+            },
+            onInfoScreenClick = {
+                moveToInfoScreen()
             },
             onInfoClick = {
                 moveToTaskScreen(it.id)
@@ -128,6 +133,7 @@ private fun MainScreenTitle(
     showOrHideTasks: () -> Unit,
     onCheckedChange: (TodoItem) -> Unit,
     onSettingsClick: () -> Unit,
+    onInfoScreenClick: () -> Unit,
     onInfoClick: (TodoItem) -> Unit,
     showCompleted: Boolean,
     loadingState: LoadingState
@@ -174,6 +180,9 @@ private fun MainScreenTitle(
             IconButton(onClick = { onSettingsClick() }) {
                 Icon(Icons.Filled.Settings, contentDescription = "settings",
                     tint = CustomTheme.colors.blue)
+            }
+            IconButton(onClick = { onInfoScreenClick() }) {
+                Icon(Icons.Filled.Info, contentDescription = "info", tint = CustomTheme.colors.blue)
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -346,6 +355,7 @@ private fun MainScreenLightPreview() {
                 msState = MainScreenUiState(loadingState = LoadingState.SUCCESS),
                 showOrHideTasks = { /*TODO*/ },
                 checkBoxClick = {},
+                moveToInfoScreen = {},
                 moveToTaskScreen = {},
                 moveToSettingsScreen = {},
                 updateList = { /*TODO*/ },
@@ -395,6 +405,7 @@ private fun MainScreenDarkPreview() {
                 msState = MainScreenUiState(loadingState = LoadingState.SUCCESS),
                 showOrHideTasks = { /*TODO*/ },
                 checkBoxClick = {},
+                moveToInfoScreen = {},
                 moveToTaskScreen = {},
                 moveToSettingsScreen = {},
                 updateList = { /*TODO*/ },

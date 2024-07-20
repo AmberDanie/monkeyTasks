@@ -47,6 +47,7 @@ fun TodoListNavHost(
                 showOrHideTasks = { mainScreenViewModel.showOrHideCompletedTasks() },
                 checkBoxClick = { mainScreenViewModel.changeMadeStatus(it.id) },
                 moveToTaskScreen = { navController.navigate(TodoListNavGraph.Task.name + "/$it") },
+                moveToInfoScreen = { navController.navigate(TodoListNavGraph.Info.name) },
                 moveToSettingsScreen = { navController.navigate(TodoListNavGraph.Settings.name) },
                 updateList = { mainScreenViewModel.retryToGetData() },
                 hideSnackbar = { mainScreenViewModel.hideSnackbar() },
