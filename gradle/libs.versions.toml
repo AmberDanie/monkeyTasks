@@ -26,28 +26,20 @@ runtime = "1.6.8"
 workRuntimeKtx = "2.9.0"
 ktorVersion = "2.3.12"
 toolsCore = "1.0.0-alpha09"
-appcompat = "1.7.0"
-material = "1.12.0"
-jetbrainsKotlinJvm = "1.9.0"
-uiGraphicsAndroid = "1.6.8"
-foundationAndroid = "1.6.8"
-uiToolingPreviewAndroid = "1.6.8"
 roomCommon = "2.6.1"
+okhttp = "4.12.0"
 jetbrainsKotlinJvmVersion = "1.9.0"
+divkit = "30.9.0"
+uiViewbinding = "1.6.8"
 
 [libraries]
 agp = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
 androidx-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "runtime" }
-google-dagger = { module = "com.google.dagger:dagger" }
-google-dagger-compiler = { module = "com.google.dagger:dagger-compiler" }
 ktor-client = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktorVersion" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktorVersion" }
 kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlin-ksp-gradle = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx" }
-room-compiler = { module = "androidx.room:room-compiler" }
-room-runtime = { module = "androidx.room:room-runtime" }
 zip-file = { group = "net.lingala.zip4j", name = "zip4j", version.ref = "lingalaZip" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
@@ -77,12 +69,18 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofitVersion" }
 retrofit2-kotlinx-serialization-converter = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version.ref = "retrofit2KotlinxSerializationConverter" }
 androidx-tools-core = { group = "androidx.privacysandbox.tools", name = "tools-core", version.ref = "toolsCore" }
-androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-androidx-ui-graphics-android = { group = "androidx.compose.ui", name = "ui-graphics-android", version.ref = "uiGraphicsAndroid" }
-androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
-androidx-ui-tooling-preview-android = { group = "androidx.compose.ui", name = "ui-tooling-preview-android", version.ref = "uiToolingPreviewAndroid" }
 androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "roomCommon" }
+
+okhttp3 = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+
+yandex-div = { module = "com.yandex.div:div", version.ref = "divkit" }
+yandex-div-core = { module = "com.yandex.div:div-core", version.ref = "divkit" }
+yandex-div-json = { module = "com.yandex.div:div-json", version.ref = "divkit" }
+yandex-div-utils = { module = "com.yandex.div:utils", version.ref = "divkit" }
+yandex-div-picasso = { module = "com.yandex.div:picasso", version.ref = "divkit" }
+yandex-div-zoom = { module = "com.yandex.div:div-pinch-to-zoom", version.ref = "divkit" }
+yandex-div-rive = { module = "com.yandex.div:div-rive", version.ref = "divkit" }
+androidx-ui-viewbinding = { group = "androidx.compose.ui", name = "ui-viewbinding", version.ref = "uiViewbinding" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

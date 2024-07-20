@@ -11,17 +11,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import pet.project.settings.SettingsScreen
-import pet.project.task.TaskScreen
+import pet.project.info.InfoScreen
+import pet.project.main.MainScreenViewModel
 import pet.project.settings.SettingsScreenViewModel
 import pet.project.task.TaskScreenViewModel
 
 @Composable
 fun TodoListNavHost(
     navController: NavHostController,
-    mainScreenViewModelFactory: pet.project.main.MainScreenViewModel.Factory,
-    taskScreenViewModelFactory: pet.project.task.TaskScreenViewModel.Factory,
-    settingsScreenViewModel: pet.project.settings.SettingsScreenViewModel
+    mainScreenViewModelFactory: MainScreenViewModel.Factory,
+    taskScreenViewModelFactory: TaskScreenViewModel.Factory,
+    settingsScreenViewModel: SettingsScreenViewModel
 ) {
     NavHost(
         navController = navController,
@@ -86,6 +86,17 @@ fun TodoListNavHost(
                 settingsState = ssState,
                 changeTheme = { settingsScreenViewModel.updateTheme(it) },
                 moveBack = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = TodoListNavGraph.Info.name,
+            enterTransition = { scaleIntoContainer() },
+            exitTransition = { scaleOutOfContainer() },
+            popEnterTransition = { scaleIntoContainer() },
+            popExitTransition = { scaleOutOfContainer() }
+        ) {
+            InfoScreen(
+                goBack = { navController.popBackStack() }
             )
         }
     }

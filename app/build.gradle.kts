@@ -22,5 +22,6 @@ dependencies {
     implementation(project(":feature:mainScreen"))
     implementation(project(":feature:task"))
     implementation(project(":feature:settings"))
+    implementation(project(":feature:info"))
 }
 

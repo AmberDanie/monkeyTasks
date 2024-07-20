@@ -35,6 +35,16 @@ android {
 }
 
 dependencies {
+    // divkit
+    implementation(libs.yandex.div)
+    implementation(libs.yandex.div.core)
+    implementation(libs.yandex.div.json)
+    implementation(libs.yandex.div.utils)
+    implementation(libs.yandex.div.picasso)
+    implementation(libs.yandex.div.zoom)
+    implementation(libs.yandex.div.rive)
+    implementation(libs.okhttp3)
+
     implementation(libs.dagger)
     implementation(libs.androidx.tools.core)
     kapt(libs.dagger.compiler)

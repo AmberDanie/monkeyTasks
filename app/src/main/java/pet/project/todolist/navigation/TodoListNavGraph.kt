@@ -5,5 +5,5 @@ package pet.project.todolist.navigation
  * */
 
 enum class TodoListNavGraph {
-    Main, Task, Settings
+    Main, Task, Settings, Info
 }
