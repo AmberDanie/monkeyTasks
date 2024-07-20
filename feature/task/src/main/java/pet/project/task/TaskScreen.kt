@@ -2,6 +2,7 @@ package pet.project.task
 
 import android.app.DatePickerDialog
 import android.widget.DatePicker
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -25,9 +26,11 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -51,6 +54,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
@@ -65,6 +69,7 @@ import java.util.UUID
 
 /* part 2 */
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(
     taskScreenViewModel: TaskScreenViewModel,
@@ -222,6 +227,33 @@ fun TaskScreen(
             )
             Spacer(Modifier.height(16.dp))
         }
+        AnimatedVisibility(visible = menuExpanded) {
+            ModalBottomSheet(onDismissRequest = { menuExpanded = false }) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = {
+                        importanceStatus = R.string.Default
+                        menuExpanded = false },
+                        modifier = Modifier.fillMaxWidth()) {
+                        Text(text = stringResource(id = R.string.Default), textAlign = TextAlign.Center)
+                    }
+                    TextButton(onClick = {
+                        importanceStatus = R.string.Low
+                        menuExpanded = false },
+                        modifier = Modifier.fillMaxWidth()) {
+                        Text(text = stringResource(id = R.string.Low))
+                    }
+                    TextButton(onClick = {
+                        importanceStatus = R.string.High
+                        menuExpanded = false },
+                        modifier = Modifier.fillMaxWidth()) {
+                        Text(text = stringResource(id = R.string.High), color = CustomTheme.colors.red)
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -337,11 +369,11 @@ private fun TaskImportance(
                 color = CustomTheme.colors.gray
             )
         }
-        TaskDropDownMenu(
-            menuExpanded = menuExpanded,
-            onDismiss = changeExpandedStatus,
-            onClick = { onChoose(it) }
-        )
+//        TaskDropDownMenu(
+//            menuExpanded = menuExpanded,
+//            onDismiss = changeExpandedStatus,
+//            onClick = { onChoose(it) }
+//        )
     }
 }
 
