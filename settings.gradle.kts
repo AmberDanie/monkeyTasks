@@ -26,3 +26,16 @@ dependencyResolutionManagement {
 
 rootProject.name = "toDoList"
 include(":app")
+include(":core")
+include(":domain")
+include(":core:theme")
+include(":core:data")
+include(":core:network")
+include(":core:utils")
+include(":core:database")
+include(":core:management")
+include(":feature")
+include(":feature:mainScreen")
+include(":feature:task")
+include(":feature:settings")
+include(":feature:info")

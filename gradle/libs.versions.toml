@@ -4,7 +4,7 @@ converterGson = "2.2.0"
 dagger = "2.49"
 daggerCompiler = "2.48"
 datastore = "1.1.1"
-kotlin = "1.9.0"
+kotlin = "2.0.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 coroutines = "1.7.3"
@@ -22,22 +22,24 @@ retrofitVersion = "2.11.0"
 roomRuntime = "2.6.1"
 roomCompiler = "2.6.1"
 roomKtx = "2.6.1"
+runtime = "1.6.8"
 workRuntimeKtx = "2.9.0"
 ktorVersion = "2.3.12"
 toolsCore = "1.0.0-alpha09"
+roomCommon = "2.6.1"
+okhttp = "4.12.0"
+jetbrainsKotlinJvmVersion = "1.9.0"
+divkit = "30.9.0"
+uiViewbinding = "1.6.8"
 
 [libraries]
 agp = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
-google-dagger = { module = "com.google.dagger:dagger" }
-google-dagger-compiler = { module = "com.google.dagger:dagger-compiler" }
+androidx-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "runtime" }
 ktor-client = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktorVersion" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktorVersion" }
 kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlin-ksp-gradle = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx" }
-room-compiler = { module = "androidx.room:room-compiler" }
-room-runtime = { module = "androidx.room:room-runtime" }
 zip-file = { group = "net.lingala.zip4j", name = "zip4j", version.ref = "lingalaZip" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
@@ -67,8 +69,22 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofitVersion" }
 retrofit2-kotlinx-serialization-converter = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version.ref = "retrofit2KotlinxSerializationConverter" }
 androidx-tools-core = { group = "androidx.privacysandbox.tools", name = "tools-core", version.ref = "toolsCore" }
+androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "roomCommon" }
+
+okhttp3 = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+
+yandex-div = { module = "com.yandex.div:div", version.ref = "divkit" }
+yandex-div-core = { module = "com.yandex.div:div-core", version.ref = "divkit" }
+yandex-div-json = { module = "com.yandex.div:div-json", version.ref = "divkit" }
+yandex-div-utils = { module = "com.yandex.div:utils", version.ref = "divkit" }
+yandex-div-picasso = { module = "com.yandex.div:picasso", version.ref = "divkit" }
+yandex-div-zoom = { module = "com.yandex.div:div-pinch-to-zoom", version.ref = "divkit" }
+yandex-div-rive = { module = "com.yandex.div:div-rive", version.ref = "divkit" }
+androidx-ui-viewbinding = { group = "androidx.compose.ui", name = "ui-viewbinding", version.ref = "uiViewbinding" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvmVersion" }
 

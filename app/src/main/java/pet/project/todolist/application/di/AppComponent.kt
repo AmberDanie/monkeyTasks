@@ -3,9 +3,9 @@ package pet.project.todolist.application.di
 import android.content.Context
 import dagger.BindsInstance
 import dagger.Component
-import pet.project.todolist.application.TodoListApplication
-import pet.project.todolist.utils.AppScope
 import pet.project.todolist.activities.main.di.ActivityComponent
+import pet.project.todolist.application.TodoListApplication
+import pet.project.utils.AppScope
 
 @AppScope
 @Component(

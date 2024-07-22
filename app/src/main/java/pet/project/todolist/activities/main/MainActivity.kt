@@ -6,15 +6,21 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.toArgb
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import pet.project.theme.AppTheme
+import pet.project.theme.CustomTheme
 import pet.project.todolist.activities.main.di.ActivityComponent
 import pet.project.todolist.application.TodoListApplication
 import pet.project.todolist.navigation.TodoListNavHost
-import pet.project.todolist.ui.theme.AppTheme
-import pet.project.todolist.ui.theme.CustomTheme
+import javax.inject.Inject
 
 /**
  * MainActivity responsible for setting UI-layer content
@@ -23,18 +29,35 @@ import pet.project.todolist.ui.theme.CustomTheme
 class MainActivity : ComponentActivity() {
     private var activityComponent: ActivityComponent? = null
 
+    @Inject
+    lateinit var dataStore: DataStore<Preferences>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         activityComponent =
-            (applicationContext as TodoListApplication).appComponent.activityComponent
+            (applicationContext as TodoListApplication).appComponent.activityComponent.also {
+                it.inject(
+                    this@MainActivity
+                )
+            }
 
         val mainScreenViewModelFactory = activityComponent!!.mainScreenViewModelFactory
         val taskScreenViewModelFactory = activityComponent!!.taskScreenViewModelFactory
+        val settingsScreenViewModelFactory = activityComponent!!.settingsScreenViewModelFactory
 
         setContent {
-            AppTheme {
+            val settingsScreenViewModel = viewModel {
+                settingsScreenViewModelFactory.create(savedStateHandle = SavedStateHandle())
+            }
+            val settingsState by settingsScreenViewModel.ssState.collectAsState()
+            val theme = settingsState.currentTheme
+            AppTheme(
+                themeSetting = theme
+            ) {
+                window.navigationBarColor =
+                    CustomTheme.colors.backPrimary.toArgb()
                 val navController = rememberNavController()
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -43,7 +66,8 @@ class MainActivity : ComponentActivity() {
                     TodoListNavHost(
                         navController = navController,
                         mainScreenViewModelFactory = mainScreenViewModelFactory,
-                        taskScreenViewModelFactory = taskScreenViewModelFactory
+                        taskScreenViewModelFactory = taskScreenViewModelFactory,
+                        settingsScreenViewModel = settingsScreenViewModel
                     )
                 }
             }
@@ -53,29 +77,5 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         activityComponent = null
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun AppDarkPreview() {
-    AppTheme(darkTheme = true) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = CustomTheme.colors.backPrimary
-        ) {
-        }
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun AppLightPreview() {
-    AppTheme(darkTheme = false) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = CustomTheme.colors.backPrimary
-        ) {
-        }
     }
 }

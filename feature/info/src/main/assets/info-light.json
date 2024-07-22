@@ -1,0 +1,174 @@
+{
+  "card": {
+    "log_id": "my_card",
+    "states": [
+      {
+        "state_id": 0,
+        "div": {
+          "type": "container",
+          "background": [
+            {
+              "color": "#FFF"
+            }
+          ],
+          "items": [
+            {
+              "type": "container",
+              "orientation": "horizontal",
+              "items": [
+                {
+                  "type": "image",
+                  "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Back_Arrow.svg/768px-Back_Arrow.svg.png",
+
+                  "width": {
+                    "type": "fixed",
+                    "value": 36
+                  },
+                  "margins": {
+                    "top": 40,
+                    "left": 12,
+                    "right": 16
+                  },
+                  "action":{
+                    "url": "nav-action://back",
+                    "log_id": "nav_back"
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "О приложении",
+                  "font_size": 32,
+                  "font_weight": "bold",
+                  "alignment_horizontal": "center",
+                  "width": {
+                    "type": "wrap_content"
+                  },
+                  "margins": {
+                    "top": 40
+                  }
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": "TodoList - приложение, выполненное в рамках летней школы Яндекса.",
+              "font_size": 16,
+              "font_weight": "medium",
+              "alignment_horizontal": "center",
+              "margins": {
+                "left": 12,
+                "top": 120,
+                "right": 24
+              }
+            },
+            {
+              "type": "text",
+              "text": "Суть приложения: ведение списка дел.",
+              "font_size": 16,
+              "font_weight": "medium",
+              "alignment_horizontal": "center",
+              "margins": {
+                "left": 12,
+                "top": 8,
+                "right": 24
+              }
+            },
+            {
+              "type": "container",
+              "orientation": "horizontal",
+              "alignment_vertical": "center",
+              "items": [
+                {
+                  "type": "image",
+                  "image_url": "https://pngicon.ru/file/uploads/zelenaja-galochka-v-kruzhke.png",
+                  "width": {
+                    "type": "fixed",
+                    "value": 32
+                  },
+                  "margins": {
+                    "left": 12,
+                    "top": 4
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "Для хранения данных используется локальная база данных и сервер.\n",
+                  "font_size": 16,
+                  "font_weight": "medium",
+                  "alignment_horizontal": "center",
+                  "margins": {
+                    "left": 12,
+                    "top": 8,
+                    "right": 24
+                  }
+                }
+              ]
+            },
+            {
+              "type": "container",
+              "orientation": "horizontal",
+              "alignment_vertical": "center",
+              "items": [
+                {
+                  "type": "image",
+                  "image_url": "https://pngicon.ru/file/uploads/zelenaja-galochka-v-kruzhke.png",
+                  "width": {
+                    "type": "fixed",
+                    "value": 32
+                  },
+                  "margins": {
+                    "left": 12,
+                    "top": 4
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "Пользователь может свободно управлять элементами списка.\n",
+                  "font_size": 16,
+                  "font_weight": "medium",
+                  "alignment_horizontal": "center",
+                  "margins": {
+                    "left": 12,
+                    "top": 8,
+                    "right": 24
+                  }
+                }
+              ]
+            },
+            {
+              "type": "container",
+              "orientation": "horizontal",
+              "alignment_vertical": "center",
+              "items": [
+                {
+                  "type": "image",
+                  "image_url": "https://pngicon.ru/file/uploads/zelenaja-galochka-v-kruzhke.png",
+                  "width": {
+                    "type": "fixed",
+                    "value": 32
+                  },
+                  "margins": {
+                    "left": 12,
+                    "top": 4
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "Присутствует поддержка смены темы приложения.\n",
+                  "font_size": 16,
+                  "font_weight": "medium",
+                  "alignment_horizontal": "center",
+                  "margins": {
+                    "left": 12,
+                    "top": 8,
+                    "right": 24
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

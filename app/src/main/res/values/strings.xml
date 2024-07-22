@@ -10,4 +10,10 @@
     <string name="Importance">Важность</string>
     <string name="Deadline_title">Сделать до</string>
     <string name="Delete">Удалить</string>
+    <string name="Dark_theme">Тёмная тема</string>
+    <string name="Light_theme">Светлая тема</string>
+    <string name="Auto_theme">Системная тема</string>
+    <string name="title_core">Core</string>
+    <string name="title_domain">Domain</string>
+    <string name="title_data">Data</string>
 </resources>

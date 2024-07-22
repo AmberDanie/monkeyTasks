@@ -7,9 +7,9 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import dagger.Module
 import dagger.Provides
-import pet.project.todolist.data.database.TodoDatabase
-import pet.project.todolist.data.database.TodoItemDao
-import pet.project.todolist.utils.AppScope
+import pet.project.database.TodoDatabase
+import pet.project.database.TodoItemDao
+import pet.project.utils.AppScope
 
 @Module
 interface DataModule {
