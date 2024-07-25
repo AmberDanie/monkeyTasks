@@ -48,6 +48,12 @@ class MainScreenViewModel @AssistedInject constructor(
         }
     }
 
+    fun removeItem(itemId: String) {
+        viewModelScope.launch {
+            repository.removeItem(itemId)
+        }
+    }
+
     private suspend fun updateList() {
         withContext(Dispatchers.IO) {
             val flow = repository.getItemsFlow()

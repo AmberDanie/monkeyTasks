@@ -17,7 +17,7 @@ class CustomColors(
     labelDisable: Color,
     red: Color,
     green: Color,
-    blue: Color,
+    yellow: Color,
     gray: Color,
     grayLight: Color,
     white: Color,
@@ -50,7 +50,7 @@ class CustomColors(
     var green by mutableStateOf(green)
         private set
 
-    var blue by mutableStateOf(blue)
+    var yellow by mutableStateOf(yellow)
         private set
 
     var gray by mutableStateOf(gray)
@@ -83,7 +83,7 @@ class CustomColors(
         labelDisable: Color = this.labelDisable,
         red: Color = this.red,
         green: Color = this.green,
-        blue: Color = this.blue,
+        yellow: Color = this.yellow,
         gray: Color = this.gray,
         grayLight: Color = this.grayLight,
         white: Color = this.white,
@@ -100,7 +100,7 @@ class CustomColors(
         labelDisable = labelDisable,
         red = red,
         green = green,
-        blue = blue,
+        yellow = yellow,
         gray = gray,
         grayLight = grayLight,
         white = white,
@@ -118,7 +118,7 @@ class CustomColors(
         labelDisable = other.labelDisable
         red = other.red
         green = other.green
-        blue = other.blue
+        yellow = other.yellow
         gray = other.gray
         grayLight = other.grayLight
         white = other.white

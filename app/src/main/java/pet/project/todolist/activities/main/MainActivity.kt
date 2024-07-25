@@ -1,9 +1,12 @@
 package pet.project.todolist.activities.main
 
+import android.os.Build
 import android.os.Bundle
+import android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
@@ -32,6 +35,7 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var dataStore: DataStore<Preferences>
 
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -58,6 +62,8 @@ class MainActivity : ComponentActivity() {
             ) {
                 window.navigationBarColor =
                     CustomTheme.colors.backPrimary.toArgb()
+                window.decorView.windowInsetsController?.setSystemBarsAppearance(
+                    if (CustomTheme.colors.isLight) APPEARANCE_LIGHT_STATUS_BARS else 0, APPEARANCE_LIGHT_STATUS_BARS)
                 val navController = rememberNavController()
                 Surface(
                     modifier = Modifier.fillMaxSize(),

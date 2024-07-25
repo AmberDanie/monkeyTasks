@@ -39,7 +39,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -72,13 +71,16 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(
-    taskScreenViewModel: TaskScreenViewModel,
+    tsState: TaskScreenUiState,
+    addItem: (item: TodoItem) -> Unit,
+    updateItem: (String, TodoItem) -> Unit,
+    resetRemovedStatus: (Boolean) -> Unit,
+    removeTodoItem: (String) -> Unit,
     moveBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val mContext = LocalContext.current
 
-    val tsState by taskScreenViewModel.tsState.collectAsState()
     val item = tsState.currentItem
     val removed = tsState.removed
 
@@ -146,7 +148,7 @@ fun TaskScreen(
                     else -> pet.project.domain.TaskImportance.HIGH
                 }
                 if (item == null) {
-                    taskScreenViewModel.addTodoItem(
+                    addItem(
                         TodoItem(
                             id = UUID.randomUUID().toString(),
                             taskText = inputText,
@@ -155,7 +157,7 @@ fun TaskScreen(
                         )
                     )
                 } else {
-                    taskScreenViewModel.updateItemInList(
+                    updateItem(
                         item.id,
                         item.copy(
                             taskText = inputText,
@@ -219,8 +221,8 @@ fun TaskScreen(
             TaskDeletion(
                 item = item,
                 onDelete = {
-                    taskScreenViewModel.resetRemovedStatus(true)
-                    taskScreenViewModel.removeTodoItem(item!!.id)
+                    resetRemovedStatus(true)
+                    removeTodoItem(item!!.id)
                     moveBack()
                 },
                 removed = removed
@@ -228,8 +230,10 @@ fun TaskScreen(
             Spacer(Modifier.height(16.dp))
         }
         AnimatedVisibility(visible = menuExpanded) {
-            ModalBottomSheet(onDismissRequest = { menuExpanded = false },
-                containerColor = CustomTheme.colors.backSecondary) {
+            ModalBottomSheet(
+                onDismissRequest = { menuExpanded = false },
+                containerColor = CustomTheme.colors.backSecondary
+            ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxWidth()
@@ -306,7 +310,7 @@ private fun TaskTitle(
                 text = stringResource(R.string.save),
                 style = CustomTheme.typography.button,
                 color = if (inputText != "") {
-                    CustomTheme.colors.blue
+                    CustomTheme.colors.yellow
                 } else {
                     CustomTheme.colors.gray
                 },
@@ -481,7 +485,7 @@ private fun TaskDeadline(
                 ) {
                     CustomTheme.colors.gray
                 } else {
-                    CustomTheme.colors.blue
+                    CustomTheme.colors.yellow
                 }
             )
             Text(
@@ -493,7 +497,7 @@ private fun TaskDeadline(
                     ""
                 },
                 style = CustomTheme.typography.subhead,
-                color = CustomTheme.colors.blue
+                color = CustomTheme.colors.yellow
             )
         }
         Switch(
@@ -504,7 +508,7 @@ private fun TaskDeadline(
                 uncheckedBorderColor = Color.Transparent,
                 uncheckedTrackColor = CustomTheme.colors.grayLight,
                 checkedBorderColor = Color.Transparent,
-                checkedThumbColor = CustomTheme.colors.blue,
+                checkedThumbColor = CustomTheme.colors.yellow,
                 checkedTrackColor = CustomTheme.colors.grayLight
             ),
             modifier = Modifier
@@ -537,7 +541,7 @@ private fun TaskDeletion(
     ) {
         Icon(
             Icons.Filled.Delete,
-            contentDescription = "Delete item",
+            contentDescription = stringResource(id = R.string.Delete),
             tint = if (removed) {
                 gray
             } else {

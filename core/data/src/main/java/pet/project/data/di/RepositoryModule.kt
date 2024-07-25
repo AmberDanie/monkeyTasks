@@ -1,4 +1,4 @@
-package pet.project.todolist.application.di
+package pet.project.data.di
 
 import dagger.Binds
 import dagger.Module

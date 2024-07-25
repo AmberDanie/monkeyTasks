@@ -102,19 +102,19 @@ fun SettingsToggleRow(
             Row {
                 SettingsToggleButton(
                     iconId = R.drawable.baseline_dark_mode_24,
-                    contentDescription = "Dark mode",
+                    contentDescription = "Темная тема",
                     isEnabled = theme == ThemeSetting.DARK,
                     changeTheme = { changeTheme(ThemeSetting.DARK) }
                 )
                 SettingsToggleButton(
                     iconId = R.drawable.baseline_auto_mode_24,
-                    contentDescription = "Auto mode",
+                    contentDescription = "Как в системе",
                     isEnabled = theme == ThemeSetting.AUTO,
                     changeTheme = { changeTheme(ThemeSetting.AUTO) }
                 )
                 SettingsToggleButton(
                     iconId = R.drawable.baseline_light_mode_24,
-                    contentDescription = "Light mode",
+                    contentDescription = "Светлая тема",
                     isEnabled = theme == ThemeSetting.LIGHT,
                     changeTheme = { changeTheme(ThemeSetting.LIGHT) }
                 )

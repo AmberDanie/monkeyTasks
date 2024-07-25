@@ -23,5 +23,6 @@ dependencies {
     implementation(project(":feature:task"))
     implementation(project(":feature:settings"))
     implementation(project(":feature:info"))
+    implementation(libs.androidx.ui.test.junit4.android)
 }
 

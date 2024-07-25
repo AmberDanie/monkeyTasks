@@ -1,4 +1,4 @@
-package pet.project.todolist.application.di
+package pet.project.database.di
 
 import android.content.Context
 import androidx.datastore.core.DataStore

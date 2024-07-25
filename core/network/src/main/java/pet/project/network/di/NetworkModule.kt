@@ -1,9 +1,9 @@
-package pet.project.todolist.application.di
+package pet.project.network.di
 
 import dagger.Module
 import dagger.Provides
+import pet.project.network.BuildConfig
 import pet.project.network.TodoItemService
-import pet.project.todolist.BuildConfig
 import pet.project.utils.AppScope
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

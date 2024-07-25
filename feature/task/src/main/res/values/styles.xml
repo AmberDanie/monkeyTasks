@@ -6,12 +6,12 @@
 
     <style name="DatePickerLightTheme" parent="android:Theme.Material.Light.Dialog">
         <item name="android:colorSecondary">@color/white</item>
-        <item name="android:colorAccent">@color/blue</item>
+        <item name="android:colorAccent">@color/yellow</item>
     </style>
 
     <style name="DatePickerDarkTheme" parent="android:Theme.Material.Dialog">
         <item name="android:colorSecondary">@color/white</item>
-        <item name="android:colorAccent">@color/blue</item>
-        <item name="android:colorPrimary">@color/blue</item>
+        <item name="android:colorAccent">@color/dark_yellow</item>
+        <item name="android:colorPrimary">@color/dark_yellow</item>
     </style>
 </resources>

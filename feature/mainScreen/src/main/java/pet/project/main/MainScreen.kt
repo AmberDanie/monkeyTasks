@@ -1,6 +1,7 @@
 package pet.project.main
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -8,6 +9,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,22 +27,31 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
@@ -65,6 +77,7 @@ fun MainScreen(
     moveToInfoScreen: () -> Unit,
     updateList: () -> Unit,
     hideSnackbar: () -> Unit,
+    onDelete: (itemId: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val items = msState.itemsList
@@ -90,7 +103,8 @@ fun MainScreen(
                 moveToSettingsScreen()
             },
             showCompleted = showCompleted,
-            loadingState = loadingStatus
+            loadingState = loadingStatus,
+            onDelete = onDelete
         )
         FloatingActionButton(
             onClick = {
@@ -100,7 +114,7 @@ fun MainScreen(
                 .padding(end = 16.dp, bottom = 64.dp)
                 .align(Alignment.BottomEnd),
             shape = CircleShape,
-            containerColor = CustomTheme.colors.blue,
+            containerColor = CustomTheme.colors.yellow,
             contentColor = CustomTheme.colors.white
         ) {
             Icon(Icons.Filled.Add, "Action button")
@@ -135,111 +149,203 @@ private fun MainScreenTitle(
     onSettingsClick: () -> Unit,
     onInfoScreenClick: () -> Unit,
     onInfoClick: (TodoItem) -> Unit,
+    onDelete: (itemId: String) -> Unit,
     showCompleted: Boolean,
     loadingState: LoadingState
 ) {
     val tasksDone = toDoItems.count { it.isMade }
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = stringResource(id = R.string.main_title),
-            style = CustomTheme.typography.largeTitle,
-            color = CustomTheme.colors.labelPrimary,
-            modifier = Modifier.padding(start = 60.dp, top = 82.dp)
-        )
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 60.dp, end = 8.dp)
+    Box {
+        Column(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = stringResource(
-                    R.string.tasks_done,
-                    tasksDone,
-                    toDoItems.size
-                ),
-                style = CustomTheme.typography.body,
-                color = CustomTheme.colors.labelSecondary
-            )
-            IconButton(onClick = {
-                showOrHideTasks()
-            }) {
-                Icon(
-                    painter = if (!showCompleted) {
-                        painterResource(R.drawable.baseline_visibility_24)
+            Row {
+                Crossfade(targetState = showCompleted, label = "Иконка обезьяны") { showCompleted ->
+                    if (showCompleted) {
+                        Image(
+                            painter = painterResource(R.drawable.monkey),
+                            contentDescription = "Нажми чтобы скрыть выполненные дела",
+                            modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 72.dp)
+                                .size(92.dp).clip(CircleShape).clickable {
+                                    showOrHideTasks()
+                                }
+                        )
                     } else {
-                        painterResource(R.drawable.baseline_visibility_off_24)
-                    },
-                    contentDescription = "Visibility on",
-                    tint = CustomTheme.colors.blue
-                )
-            }
-            IconButton(onClick = { onSettingsClick() }) {
-                Icon(
-                    Icons.Filled.Settings, contentDescription = "settings",
-                    tint = CustomTheme.colors.blue
-                )
-            }
-            IconButton(onClick = { onInfoScreenClick() }) {
-                Icon(Icons.Filled.Info, contentDescription = "info", tint = CustomTheme.colors.blue)
-            }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        ElevatedCard(
-            colors = CardDefaults.elevatedCardColors(
-                containerColor = CustomTheme.colors.backSecondary,
-                contentColor = CustomTheme.colors.labelSecondary
-            ),
-            elevation = CardDefaults.elevatedCardElevation(
-                2.dp
-            ),
-            modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 16.dp)
-        ) {
-            LazyColumn(
-                modifier = Modifier.animateContentSize(
-                    animationSpec = spring(
-                        stiffness = Spring.StiffnessHigh
-                    )
-                )
-            ) {
-                when (loadingState) {
-                    LoadingState.LOADING -> item {
-                        LoadingLayout()
+                        Image(
+                            painter = painterResource(R.drawable.monkey_with_tongue),
+                            contentDescription = "Нажми чтобы показать выполненные дела",
+                            modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 72.dp)
+                                .size(92.dp).clip(CircleShape).clickable {
+                                    showOrHideTasks()
+                                }
+                        )
                     }
-
-                    else -> {
-                        items(items = toDoItems, key = { it.id }) {
-                            AnimatedListItem(showCompleted, it, onCheckedChange, onInfoClick)
+                }
+                Column {
+                    Text(
+                        text = stringResource(id = R.string.main_title),
+                        style = CustomTheme.typography.largeTitle,
+                        color = CustomTheme.colors.labelPrimary,
+                        modifier = Modifier.padding(top = 82.dp)
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(end = 8.dp)
+                    ) {
+                        Text(
+                            text = stringResource(
+                                R.string.tasks_done,
+                                tasksDone,
+                                toDoItems.size
+                            ),
+                            style = CustomTheme.typography.body,
+                            color = CustomTheme.colors.labelSecondary,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        IconButton(
+                            onClick = { onSettingsClick() },
+                            modifier = Modifier
+                                .padding(start = 24.dp)
+                                .weight(0.25f)
+                        ) {
+                            Icon(
+                                Icons.Filled.Settings,
+                                contentDescription = "Экран настроек",
+                                tint = CustomTheme.colors.yellow
+                            )
+                        }
+                        IconButton(
+                            onClick = { onInfoScreenClick() },
+                            modifier = Modifier
+                                .padding(start = 12.dp)
+                                .weight(0.25f)
+                        ) {
+                            Icon(
+                                Icons.Filled.Info,
+                                contentDescription = "Экран информации",
+                                tint = CustomTheme.colors.yellow
+                            )
                         }
                     }
                 }
-                item(1) {
-                    Spacer(Modifier.height(100.dp))
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            ElevatedCard(
+                colors = CardDefaults.elevatedCardColors(
+                    containerColor = CustomTheme.colors.backSecondary,
+                    contentColor = CustomTheme.colors.labelSecondary
+                ),
+                elevation = CardDefaults.elevatedCardElevation(
+                    2.dp
+                ),
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 16.dp)
+            ) {
+                LazyColumn(
+                    modifier = Modifier.animateContentSize(
+                        animationSpec = spring(
+                            stiffness = Spring.StiffnessHigh
+                        )
+                    )
+                ) {
+                    when (loadingState) {
+                        LoadingState.LOADING -> item {
+                            LoadingLayout()
+                        }
+
+                        else -> {
+                            items(items = toDoItems, key = { it.id }) {
+                                AnimatedListItem(
+                                    showCompleted = showCompleted,
+                                    item = it,
+                                    onCheckedChange = onCheckedChange,
+                                    onInfoClick = onInfoClick,
+                                    onDelete = onDelete
+                                )
+                            }
+                        }
+                    }
+                    item(1) {
+                        Spacer(Modifier.height(100.dp))
+                    }
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DismissBackground(dismissState: SwipeToDismissBoxState) {
+    val color = when (dismissState.dismissDirection) {
+        SwipeToDismissBoxValue.StartToEnd -> CustomTheme.colors.green
+        SwipeToDismissBoxValue.EndToStart -> CustomTheme.colors.red
+        SwipeToDismissBoxValue.Settled -> Color.Transparent
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color)
+            .padding(12.dp, 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        if (dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
+            Icon(Icons.Filled.Check, contentDescription = null, tint = CustomTheme.colors.white)
+        }
+        Spacer(modifier = Modifier)
+        if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+            Icon(Icons.Filled.Delete, contentDescription = null, tint = CustomTheme.colors.white)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ColumnScope.AnimatedListItem(
     showCompleted: Boolean,
     item: TodoItem,
+    onDelete: (itemId: String) -> Unit,
     onCheckedChange: (TodoItem) -> Unit,
     onInfoClick: (TodoItem) -> Unit
 ) {
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = {
+            return@rememberSwipeToDismissBoxState when (it) {
+                SwipeToDismissBoxValue.StartToEnd -> {
+                    onCheckedChange(item)
+                    false
+                }
+
+                SwipeToDismissBoxValue.EndToStart -> {
+                    onDelete(item.id)
+                    true
+                }
+
+                SwipeToDismissBoxValue.Settled -> false
+            }
+        },
+        positionalThreshold = { it * .25f }
+    )
+
     AnimatedVisibility(
         visible = showCompleted || !item.isMade,
         enter = expandVertically(animationSpec = tween(200)),
         exit = shrinkVertically(animationSpec = tween(200))
     ) {
-        ListItem(
-            item = item,
-            onCheckedChange = onCheckedChange,
-            onInfoClick = onInfoClick
+        SwipeToDismissBox(
+            state = dismissState,
+            backgroundContent = { DismissBackground(dismissState = dismissState) },
+            content = {
+                ListItem(
+                    item = item,
+                    onCheckedChange = onCheckedChange,
+                    onInfoClick = onInfoClick,
+                    modifier = Modifier.background(CustomTheme.colors.backSecondary)
+                )
+            }
         )
     }
 }
@@ -267,7 +373,9 @@ fun ListItem(
     onInfoClick: (TodoItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row {
+    Row(
+        modifier = modifier
+    ) {
         Checkbox(
             checked = item.isMade,
             onCheckedChange = {
@@ -287,7 +395,7 @@ fun ListItem(
             TaskImportance.LOW ->
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_arrow_downward_24),
-                    contentDescription = null,
+                    contentDescription = "Низкий приоритет",
                     tint = if (!item.isMade) CustomTheme.colors.gray else CustomTheme.colors.green,
                     modifier = modifier.padding(top = 12.dp)
                 )
@@ -295,7 +403,7 @@ fun ListItem(
             TaskImportance.HIGH ->
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_priority_high_24),
-                    contentDescription = null,
+                    contentDescription = "Высокий приоритет",
                     tint = if (!item.isMade) CustomTheme.colors.red else CustomTheme.colors.green,
                     modifier = modifier.padding(top = 12.dp)
                 )
@@ -338,7 +446,7 @@ fun ListItem(
                 painter = painterResource(
                     id = R.drawable.baseline_info_outline_24
                 ),
-                contentDescription = null,
+                contentDescription = "Редактировать задачу",
                 modifier = modifier
             )
         }
@@ -361,7 +469,9 @@ private fun MainScreenLightPreview() {
                 moveToTaskScreen = {},
                 moveToSettingsScreen = {},
                 updateList = { /*TODO*/ },
-                hideSnackbar = {})
+                hideSnackbar = {},
+                onDelete = {}
+            )
         }
     }
 }
@@ -411,7 +521,9 @@ private fun MainScreenDarkPreview() {
                 moveToTaskScreen = {},
                 moveToSettingsScreen = {},
                 updateList = { /*TODO*/ },
-                hideSnackbar = {})
+                hideSnackbar = {},
+                onDelete = {}
+            )
         }
     }
 }
