@@ -3,7 +3,11 @@ package pet.project.main
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -48,12 +52,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -112,7 +123,11 @@ fun MainScreen(
             },
             modifier = Modifier
                 .padding(end = 16.dp, bottom = 64.dp)
-                .align(Alignment.BottomEnd),
+                .align(Alignment.BottomEnd)
+                .semantics {
+                    contentDescription = "Создать новую задачу"
+                }
+                .testTag("add_button"),
             shape = CircleShape,
             containerColor = CustomTheme.colors.yellow,
             contentColor = CustomTheme.colors.white
@@ -159,41 +174,46 @@ private fun MainScreenTitle(
             modifier = Modifier.fillMaxWidth()
         ) {
             Row {
-                Crossfade(targetState = showCompleted, label = "Иконка обезьяны") { showCompleted ->
+                Crossfade(targetState = showCompleted, label = "Swap animations") { showCompleted ->
                     if (showCompleted) {
                         Image(
                             painter = painterResource(R.drawable.monkey),
-                            contentDescription = "Нажми чтобы скрыть выполненные дела",
-                            modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 72.dp)
-                                .size(92.dp).clip(CircleShape).clickable {
+                            contentDescription = "Скрыть выполненное",
+                            modifier = Modifier
+                                .padding(start = 8.dp, end = 8.dp, top = 72.dp)
+                                .size(92.dp)
+                                .clip(CircleShape)
+                                .clickable {
                                     showOrHideTasks()
                                 }
                         )
                     } else {
                         Image(
                             painter = painterResource(R.drawable.monkey_with_tongue),
-                            contentDescription = "Нажми чтобы показать выполненные дела",
-                            modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 72.dp)
-                                .size(92.dp).clip(CircleShape).clickable {
+                            contentDescription = "Показать выполненное",
+                            modifier = Modifier
+                                .padding(start = 8.dp, end = 8.dp, top = 72.dp)
+                                .size(92.dp)
+                                .clip(CircleShape)
+                                .clickable {
                                     showOrHideTasks()
                                 }
                         )
                     }
                 }
-                Column {
-                    Text(
-                        text = stringResource(id = R.string.main_title),
-                        style = CustomTheme.typography.largeTitle,
-                        color = CustomTheme.colors.labelPrimary,
-                        modifier = Modifier.padding(top = 82.dp)
-                    )
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                Row(
+                    modifier = Modifier.padding(top = 80.dp)
+                ) {
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(end = 8.dp)
+                            .semantics(mergeDescendants = true) { }
                     ) {
+                        Text(
+                            text = stringResource(id = R.string.main_title),
+                            style = CustomTheme.typography.largeTitle,
+                            color = CustomTheme.colors.labelPrimary,
+                            modifier = Modifier.padding(top = 2.dp)
+                        )
                         Text(
                             text = stringResource(
                                 R.string.tasks_done,
@@ -202,32 +222,30 @@ private fun MainScreenTitle(
                             ),
                             style = CustomTheme.typography.body,
                             color = CustomTheme.colors.labelSecondary,
-                            modifier = Modifier.padding(end = 8.dp)
+                            modifier = Modifier.padding(end = 8.dp, top = 12.dp)
                         )
-                        IconButton(
-                            onClick = { onSettingsClick() },
+                    }
+                    IconButton(
+                        onClick = { onSettingsClick() },
+                        modifier = Modifier
+                            .padding(start = 24.dp, end = 2.dp)
+                    ) {
+                        Icon(
+                            Icons.Filled.Settings,
+                            contentDescription = "Экран настроек",
+                            tint = CustomTheme.colors.yellow
+                        )
+                    }
+                    IconButton(
+                        onClick = { onInfoScreenClick() },
+                        modifier = Modifier
+                    ) {
+                        Icon(
+                            Icons.Filled.Info,
+                            contentDescription = "Экран информации",
+                            tint = CustomTheme.colors.yellow,
                             modifier = Modifier
-                                .padding(start = 24.dp)
-                                .weight(0.25f)
-                        ) {
-                            Icon(
-                                Icons.Filled.Settings,
-                                contentDescription = "Экран настроек",
-                                tint = CustomTheme.colors.yellow
-                            )
-                        }
-                        IconButton(
-                            onClick = { onInfoScreenClick() },
-                            modifier = Modifier
-                                .padding(start = 12.dp)
-                                .weight(0.25f)
-                        ) {
-                            Icon(
-                                Icons.Filled.Info,
-                                contentDescription = "Экран информации",
-                                tint = CustomTheme.colors.yellow
-                            )
-                        }
+                        )
                     }
                 }
             }
@@ -267,7 +285,7 @@ private fun MainScreenTitle(
                         }
                     }
                     item(1) {
-                        Spacer(Modifier.height(100.dp))
+                        Spacer(Modifier.height(if (toDoItems.size > 10) 100.dp else 20.dp))
                     }
                 }
             }
@@ -352,16 +370,30 @@ private fun ColumnScope.AnimatedListItem(
 
 @Composable
 private fun LoadingLayout() {
+    val infiniteTransition = rememberInfiniteTransition(label = "transition")
+    val angle by infiniteTransition.animateFloat(
+        initialValue = 0F,
+        targetValue = 360F,
+        animationSpec = infiniteRepeatable(
+            animation = tween(3000, easing = LinearEasing)
+        ),
+        label = "angle rotation"
+    )
     Box(
+        contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxSize()
-            .padding(start = 12.dp)
+            .padding(100.dp)
     ) {
         Image(
-            modifier = Modifier.size(400.dp),
-            painter = painterResource(R.drawable.loading_img),
+            modifier = Modifier
+                .size(100.dp)
+                .graphicsLayer {
+                    rotationZ = angle
+                },
+            painter = painterResource(R.drawable.banana_shocked),
             alignment = Alignment.Center,
-            contentDescription = null
+            contentDescription = "Загрузка данных"
         )
     }
 }
@@ -375,6 +407,9 @@ fun ListItem(
 ) {
     Row(
         modifier = modifier
+            .semantics(mergeDescendants = true) {
+                isTraversalGroup = true
+            }
     ) {
         Checkbox(
             checked = item.isMade,
@@ -397,7 +432,11 @@ fun ListItem(
                     painter = painterResource(id = R.drawable.baseline_arrow_downward_24),
                     contentDescription = "Низкий приоритет",
                     tint = if (!item.isMade) CustomTheme.colors.gray else CustomTheme.colors.green,
-                    modifier = modifier.padding(top = 12.dp)
+                    modifier = modifier
+                        .padding(top = 12.dp)
+                        .semantics {
+                            contentDescription = "Низкий приоритет"
+                        }
                 )
 
             TaskImportance.HIGH ->
@@ -405,7 +444,11 @@ fun ListItem(
                     painter = painterResource(id = R.drawable.baseline_priority_high_24),
                     contentDescription = "Высокий приоритет",
                     tint = if (!item.isMade) CustomTheme.colors.red else CustomTheme.colors.green,
-                    modifier = modifier.padding(top = 12.dp)
+                    modifier = modifier
+                        .padding(top = 12.dp)
+                        .semantics {
+                            contentDescription = "Высокий приоритет"
+                        }
                 )
 
             else -> {}
@@ -423,7 +466,11 @@ fun ListItem(
                 },
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
-                modifier = modifier.padding(top = 12.dp)
+                modifier = modifier
+                    .padding(top = 12.dp)
+                    .semantics {
+                        stateDescription = "Текст задачи"
+                    }
             )
             if (item.deadline != null) {
                 Text(
@@ -435,7 +482,9 @@ fun ListItem(
                         TextDecoration.None
                     },
                     color = CustomTheme.colors.labelTertiary,
-                    modifier = modifier
+                    modifier = modifier.semantics {
+                        stateDescription = "Дата дедлайна"
+                    }
                 )
             }
         }

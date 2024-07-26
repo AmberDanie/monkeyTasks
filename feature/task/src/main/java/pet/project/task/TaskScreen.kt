@@ -51,8 +51,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -296,7 +300,7 @@ private fun TaskTitle(
         ) {
             Icon(
                 imageVector = Icons.Filled.Close,
-                contentDescription = "Close",
+                contentDescription = "Закрыть экран",
                 tint = CustomTheme.colors.labelPrimary,
                 modifier = Modifier
             )
@@ -314,7 +318,7 @@ private fun TaskTitle(
                 } else {
                     CustomTheme.colors.gray
                 },
-                modifier = Modifier
+                modifier = Modifier.testTag("save_task")
             )
         }
     }
@@ -359,6 +363,7 @@ private fun TaskTextField(
             },
             modifier = Modifier
                 .fillMaxWidth()
+                .testTag("text_field")
         )
     }
 }
@@ -463,7 +468,7 @@ private fun TaskDeadline(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Column(modifier = Modifier.padding(start = 16.dp)) {
+        Column(modifier = Modifier.padding(start = 16.dp).semantics(mergeDescendants = true) {  }) {
             Text(
                 text = stringResource(R.string.Deadline_title),
                 style = CustomTheme.typography.body,
@@ -486,6 +491,10 @@ private fun TaskDeadline(
                     CustomTheme.colors.gray
                 } else {
                     CustomTheme.colors.yellow
+                },
+                modifier = Modifier.semantics {
+                    stateDescription = if ((item?.deadline?.toString() ?: mDate) == "")
+                        "Дедлайн отсутствует" else ""
                 }
             )
             Text(
@@ -514,6 +523,10 @@ private fun TaskDeadline(
             modifier = Modifier
                 .scale(0.75f)
                 .padding(end = 12.dp, top = 8.dp)
+                .semantics {
+                    contentDescription = "Изменить дедлайн"
+                    stateDescription = if (switchState) "Дедлайн установлен" else "Дедлайн не установлен"
+                }
         )
     }
 }
@@ -538,14 +551,18 @@ private fun TaskDeletion(
                 ),
                 onClick = onDelete
             )
+            .testTag("delete_task")
     ) {
         Icon(
             Icons.Filled.Delete,
-            contentDescription = stringResource(id = R.string.Delete),
+            contentDescription = "Кнопка",
             tint = if (removed) {
                 gray
             } else {
                 red
+            },
+            modifier = Modifier.semantics {
+                stateDescription = if (removed) "Не активна" else "Активна"
             }
         )
         Text(
@@ -556,7 +573,9 @@ private fun TaskDeletion(
                 red
             },
             style = CustomTheme.typography.body,
-            modifier = Modifier.padding(start = 4.dp, top = 3.dp)
+            modifier = Modifier.padding(start = 4.dp, top = 3.dp).semantics {
+                stateDescription = if (!removed) "Нажать дважды чтобы удалить" else ""
+            }
         )
     }
 }
