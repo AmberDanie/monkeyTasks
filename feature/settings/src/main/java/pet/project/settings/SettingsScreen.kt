@@ -29,6 +29,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pet.project.domain.ThemeSetting
@@ -51,7 +53,7 @@ fun SettingsScreen(
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "back",
+                contentDescription = "Вернуться назад",
                 tint = CustomTheme.colors.labelPrimary
             )
         }
@@ -102,19 +104,19 @@ fun SettingsToggleRow(
             Row {
                 SettingsToggleButton(
                     iconId = R.drawable.baseline_dark_mode_24,
-                    contentDescription = "Dark mode",
+                    contentDescr = "Темная тема",
                     isEnabled = theme == ThemeSetting.DARK,
                     changeTheme = { changeTheme(ThemeSetting.DARK) }
                 )
                 SettingsToggleButton(
                     iconId = R.drawable.baseline_auto_mode_24,
-                    contentDescription = "Auto mode",
+                    contentDescr = "Как в системе",
                     isEnabled = theme == ThemeSetting.AUTO,
                     changeTheme = { changeTheme(ThemeSetting.AUTO) }
                 )
                 SettingsToggleButton(
                     iconId = R.drawable.baseline_light_mode_24,
-                    contentDescription = "Light mode",
+                    contentDescr = "Светлая тема",
                     isEnabled = theme == ThemeSetting.LIGHT,
                     changeTheme = { changeTheme(ThemeSetting.LIGHT) }
                 )
@@ -126,7 +128,7 @@ fun SettingsToggleRow(
 @Composable
 fun SettingsToggleButton(
     @DrawableRes iconId: Int,
-    contentDescription: String,
+    contentDescr: String,
     isEnabled: Boolean,
     changeTheme: (ThemeSetting) -> Unit,
     modifier: Modifier = Modifier
@@ -135,7 +137,7 @@ fun SettingsToggleButton(
         onClick = { changeTheme(iconId.themeIdToThemeSetting()) },
         colors = IconButtonDefaults.iconButtonColors(
             containerColor = if (isEnabled) {
-                CustomTheme.colors.labelDisable
+                CustomTheme.colors.yellow
             } else {
                 CustomTheme.colors.grayLight
             }
@@ -143,10 +145,14 @@ fun SettingsToggleButton(
         modifier = modifier
             .height(64.dp)
             .width(64.dp)
+            .semantics {
+                stateDescription = if (isEnabled) "Включена"
+                else "Отключена"
+            }
     ) {
         Icon(
             painter = painterResource(iconId),
-            contentDescription = contentDescription,
+            contentDescription = contentDescr,
             tint = CustomTheme.colors.labelPrimary,
             modifier = Modifier.scale(1.5f)
         )

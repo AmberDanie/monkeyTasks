@@ -1,4 +1,4 @@
-package pet.project.todolist.application.di
+package pet.project.management.di
 
 import android.content.Context
 import androidx.work.Constraints

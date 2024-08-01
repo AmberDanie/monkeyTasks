@@ -39,7 +39,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -52,8 +51,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -72,13 +75,16 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(
-    taskScreenViewModel: TaskScreenViewModel,
+    tsState: TaskScreenUiState,
+    addItem: (item: TodoItem) -> Unit,
+    updateItem: (String, TodoItem) -> Unit,
+    resetRemovedStatus: (Boolean) -> Unit,
+    removeTodoItem: (String) -> Unit,
     moveBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val mContext = LocalContext.current
 
-    val tsState by taskScreenViewModel.tsState.collectAsState()
     val item = tsState.currentItem
     val removed = tsState.removed
 
@@ -146,7 +152,7 @@ fun TaskScreen(
                     else -> pet.project.domain.TaskImportance.HIGH
                 }
                 if (item == null) {
-                    taskScreenViewModel.addTodoItem(
+                    addItem(
                         TodoItem(
                             id = UUID.randomUUID().toString(),
                             taskText = inputText,
@@ -155,7 +161,7 @@ fun TaskScreen(
                         )
                     )
                 } else {
-                    taskScreenViewModel.updateItemInList(
+                    updateItem(
                         item.id,
                         item.copy(
                             taskText = inputText,
@@ -219,8 +225,8 @@ fun TaskScreen(
             TaskDeletion(
                 item = item,
                 onDelete = {
-                    taskScreenViewModel.resetRemovedStatus(true)
-                    taskScreenViewModel.removeTodoItem(item!!.id)
+                    resetRemovedStatus(true)
+                    removeTodoItem(item!!.id)
                     moveBack()
                 },
                 removed = removed
@@ -228,8 +234,10 @@ fun TaskScreen(
             Spacer(Modifier.height(16.dp))
         }
         AnimatedVisibility(visible = menuExpanded) {
-            ModalBottomSheet(onDismissRequest = { menuExpanded = false },
-                containerColor = CustomTheme.colors.backSecondary) {
+            ModalBottomSheet(
+                onDismissRequest = { menuExpanded = false },
+                containerColor = CustomTheme.colors.backSecondary
+            ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxWidth()
@@ -292,7 +300,7 @@ private fun TaskTitle(
         ) {
             Icon(
                 imageVector = Icons.Filled.Close,
-                contentDescription = "Close",
+                contentDescription = "Закрыть экран",
                 tint = CustomTheme.colors.labelPrimary,
                 modifier = Modifier
             )
@@ -306,11 +314,11 @@ private fun TaskTitle(
                 text = stringResource(R.string.save),
                 style = CustomTheme.typography.button,
                 color = if (inputText != "") {
-                    CustomTheme.colors.blue
+                    CustomTheme.colors.yellow
                 } else {
                     CustomTheme.colors.gray
                 },
-                modifier = Modifier
+                modifier = Modifier.testTag("save_task")
             )
         }
     }
@@ -355,6 +363,7 @@ private fun TaskTextField(
             },
             modifier = Modifier
                 .fillMaxWidth()
+                .testTag("text_field")
         )
     }
 }
@@ -459,7 +468,7 @@ private fun TaskDeadline(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Column(modifier = Modifier.padding(start = 16.dp)) {
+        Column(modifier = Modifier.padding(start = 16.dp).semantics(mergeDescendants = true) {  }) {
             Text(
                 text = stringResource(R.string.Deadline_title),
                 style = CustomTheme.typography.body,
@@ -481,7 +490,11 @@ private fun TaskDeadline(
                 ) {
                     CustomTheme.colors.gray
                 } else {
-                    CustomTheme.colors.blue
+                    CustomTheme.colors.yellow
+                },
+                modifier = Modifier.semantics {
+                    stateDescription = if ((item?.deadline?.toString() ?: mDate) == "")
+                        "Дедлайн отсутствует" else ""
                 }
             )
             Text(
@@ -493,7 +506,7 @@ private fun TaskDeadline(
                     ""
                 },
                 style = CustomTheme.typography.subhead,
-                color = CustomTheme.colors.blue
+                color = CustomTheme.colors.yellow
             )
         }
         Switch(
@@ -504,12 +517,16 @@ private fun TaskDeadline(
                 uncheckedBorderColor = Color.Transparent,
                 uncheckedTrackColor = CustomTheme.colors.grayLight,
                 checkedBorderColor = Color.Transparent,
-                checkedThumbColor = CustomTheme.colors.blue,
+                checkedThumbColor = CustomTheme.colors.yellow,
                 checkedTrackColor = CustomTheme.colors.grayLight
             ),
             modifier = Modifier
                 .scale(0.75f)
                 .padding(end = 12.dp, top = 8.dp)
+                .semantics {
+                    contentDescription = "Изменить дедлайн"
+                    stateDescription = if (switchState) "Дедлайн установлен" else "Дедлайн не установлен"
+                }
         )
     }
 }
@@ -534,14 +551,18 @@ private fun TaskDeletion(
                 ),
                 onClick = onDelete
             )
+            .testTag("delete_task")
     ) {
         Icon(
             Icons.Filled.Delete,
-            contentDescription = "Delete item",
+            contentDescription = "Кнопка",
             tint = if (removed) {
                 gray
             } else {
                 red
+            },
+            modifier = Modifier.semantics {
+                stateDescription = if (removed) "Не активна" else "Активна"
             }
         )
         Text(
@@ -552,7 +573,9 @@ private fun TaskDeletion(
                 red
             },
             style = CustomTheme.typography.body,
-            modifier = Modifier.padding(start = 4.dp, top = 3.dp)
+            modifier = Modifier.padding(start = 4.dp, top = 3.dp).semantics {
+                stateDescription = if (!removed) "Нажать дважды чтобы удалить" else ""
+            }
         )
     }
 }
